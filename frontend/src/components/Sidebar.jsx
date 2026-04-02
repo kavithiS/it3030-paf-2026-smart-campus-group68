@@ -10,10 +10,15 @@ const Sidebar = ({
   isMobileOpen,
   onCloseMobile,
   user,
+  displayRole,
+  accentClassName = "bg-gradient-to-br from-indigo-500 to-blue-600",
+  accentButtonClassName = "bg-gradient-to-r from-indigo-500 to-blue-600",
+  accentTextClassName = "text-slate-400",
   onLogout,
 }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileContainerRef = useRef(null);
+  const derivedRole = user?.roles?.[0] || "USER";
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
@@ -49,7 +54,9 @@ const Sidebar = ({
       >
         <div className="flex h-20 items-center border-b border-slate-800 px-4">
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 text-white shadow-md">
+            <div
+              className={`inline-flex h-11 w-11 items-center justify-center rounded-2xl text-white shadow-md ${accentClassName}`}
+            >
               <ShieldCheck className="h-6 w-6" />
             </div>
             {!isCollapsed && (
@@ -88,7 +95,7 @@ const Sidebar = ({
                 onClick={() => onNavigate(item)}
                 className={`group flex w-full items-center rounded-2xl px-3 py-3 text-sm font-semibold transition-all duration-300 ${
                   isActive
-                    ? "bg-gradient-to-r from-indigo-500 to-blue-600 text-white shadow-md"
+                    ? `${accentButtonClassName} text-white shadow-md`
                     : "text-slate-300 hover:bg-slate-900 hover:text-slate-100"
                 }`}
               >
@@ -111,7 +118,9 @@ const Sidebar = ({
             className="inline-flex w-full items-center gap-2 rounded-2xl border border-slate-700 bg-slate-900 px-2.5 py-2 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
             aria-label="Open profile menu"
           >
-            <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 text-sm font-bold text-white">
+            <div
+              className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm font-bold text-white ${accentClassName}`}
+            >
               {user.name?.charAt(0)?.toUpperCase() || "U"}
             </div>
             {!isCollapsed && (
@@ -119,8 +128,10 @@ const Sidebar = ({
                 <p className="truncate text-sm font-semibold text-slate-100">
                   {user.name}
                 </p>
-                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                  {user.roles?.[0] || "USER"}
+                <p
+                  className={`text-xs font-medium uppercase tracking-wide ${accentTextClassName}`}
+                >
+                  {displayRole || derivedRole}
                 </p>
               </div>
             )}

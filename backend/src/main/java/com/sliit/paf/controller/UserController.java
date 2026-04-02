@@ -23,14 +23,21 @@ public class UserController {
     private UserRepository userRepository;
 
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser() {
+    public ResponseEntity<com.sliit.paf.dto.UserProfileResponse> getCurrentUser() {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Optional<User> userOptional = userRepository.findById(userDetails.getId());
         
         if (userOptional.isPresent()) {
-            return ResponseEntity.ok(userOptional.get());
+            User user = userOptional.get();
+            return ResponseEntity.ok(new com.sliit.paf.dto.UserProfileResponse(
+                    user.getId(),
+                    user.getName(),
+                    user.getEmail(),
+                    user.getProvider(),
+                    user.getRoles(),
+                    user.getCreatedAt()));
         }
-        return ResponseEntity.badRequest().body(new MessageResponse("User not found"));
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping
@@ -41,7 +48,7 @@ public class UserController {
 
     @PutMapping("/{id}/role")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> updateUserRole(@PathVariable String id, @RequestBody Map<String, String> request) {
+    public ResponseEntity<MessageResponse> updateUserRole(@PathVariable String id, @RequestBody Map<String, String> request) {
         String roleStr = request.get("role");
         if (roleStr == null) {
             return ResponseEntity.badRequest().body(new MessageResponse("Role is required"));

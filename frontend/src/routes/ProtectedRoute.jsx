@@ -1,6 +1,6 @@
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { normalizeRoles, useAuth } from "../context/AuthContext";
 
 const ProtectedRoute = ({ allowedRoles }) => {
   const { user, token, loading } = useAuth();
@@ -11,8 +11,10 @@ const ProtectedRoute = ({ allowedRoles }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (allowedRoles && !user.roles.some((role) => allowedRoles.includes(role))) {
-    return <Navigate to="/unauthorized" replace />;
+  const userRoles = normalizeRoles(user?.roles);
+
+  if (allowedRoles && !userRoles.some((role) => allowedRoles.includes(role))) {
+    return <Navigate to="/login" replace />;
   }
 
   return <Outlet />;

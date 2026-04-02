@@ -1,6 +1,11 @@
 import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import {
+  decodeJwtPayload,
+  getLandingRoute,
+  normalizeRoles,
+  useAuth,
+} from "../context/AuthContext";
 
 const OAuthSuccess = () => {
   const location = useLocation();
@@ -23,7 +28,10 @@ const OAuthSuccess = () => {
     }
 
     loginUser(token, null);
-    navigate("/dashboard", { replace: true });
+    const payload = decodeJwtPayload(token);
+    navigate(getLandingRoute(normalizeRoles(payload?.roles)), {
+      replace: true,
+    });
   }, [location.search, loginUser, navigate]);
 
   return (

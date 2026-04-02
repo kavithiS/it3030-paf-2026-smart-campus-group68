@@ -1,9 +1,82 @@
 import React, { useEffect, useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import {
+  decodeJwtPayload,
+  getLandingRouteFromToken,
+  useAuth,
+} from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { LogIn, UserPlus, Fingerprint, Eye, EyeOff } from "lucide-react";
 import GoogleAuthButton from "../components/GoogleAuthButton";
+import RoleSelector from "../components/RoleSelector";
+
+const ADMIN_EMAIL_PATTERN = /^admin.*@urh\.com$/i;
+const TECH_EMAIL_PATTERN = /^tech.*@urh\.com$/i;
+const USER_FORBIDDEN_PREFIX_PATTERN = /^(admin|tech).*/i;
+const USER_FORBIDDEN_DOMAIN_PATTERN = /@urh\.com$/i;
+
+const REGISTER_ROLE_THEME = {
+  USER: {
+    iconBg: "bg-blue-600",
+    iconShadow: "shadow-blue-700/25",
+    selectorActive: "from-blue-600 to-indigo-600",
+    selectorShadow: "shadow-blue-200",
+    selectorRing: "ring-blue-500",
+    buttonGradient: "from-blue-600 to-indigo-600",
+    buttonShadow: "shadow-blue-700/45",
+    hoverText: "hover:text-blue-600",
+    linkText: "text-blue-700 hover:text-blue-600",
+    successBox: "border-blue-200 bg-blue-50 text-blue-700",
+  },
+  ADMIN: {
+    iconBg: "bg-gradient-to-r from-[#1E2A50] to-[#3B4A89]",
+    iconShadow: "shadow-indigo-950/30",
+    selectorActive: "from-[#1E2A50] to-[#3B4A89]",
+    selectorShadow: "shadow-indigo-300/40",
+    selectorRing: "ring-indigo-700",
+    buttonGradient: "from-[#1E2A50] to-[#3B4A89]",
+    buttonShadow: "shadow-indigo-950/45",
+    hoverText: "hover:text-indigo-700",
+    linkText: "text-indigo-700 hover:text-indigo-600",
+    successBox: "border-indigo-200 bg-indigo-50 text-indigo-700",
+  },
+  TECHNICIAN: {
+    iconBg: "bg-gradient-to-r from-[#0F4C5C] to-[#176D7A]",
+    iconShadow: "shadow-cyan-950/30",
+    selectorActive: "from-[#0F4C5C] to-[#176D7A]",
+    selectorShadow: "shadow-cyan-300/40",
+    selectorRing: "ring-cyan-700",
+    buttonGradient: "from-[#0F4C5C] to-[#176D7A]",
+    buttonShadow: "shadow-cyan-950/45",
+    hoverText: "hover:text-cyan-700",
+    linkText: "text-cyan-700 hover:text-cyan-600",
+    successBox: "border-cyan-200 bg-cyan-50 text-cyan-700",
+  },
+};
+
+const validateEmailByRole = (role, email) => {
+  if (!email) return "";
+
+  const normalizedEmail = email.trim();
+
+  if (role === "ADMIN" && !ADMIN_EMAIL_PATTERN.test(normalizedEmail)) {
+    return "Admin email must start with 'admin' and use @urh.com domain.";
+  }
+
+  if (role === "TECHNICIAN" && !TECH_EMAIL_PATTERN.test(normalizedEmail)) {
+    return "Technician email must start with 'tech' and use @urh.com domain.";
+  }
+
+  if (
+    role === "USER" &&
+    (USER_FORBIDDEN_PREFIX_PATTERN.test(normalizedEmail) ||
+      USER_FORBIDDEN_DOMAIN_PATTERN.test(normalizedEmail))
+  ) {
+    return "USER email cannot start with 'admin' or 'tech', and cannot use '@urh.com' domain";
+  }
+
+  return "";
+};
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -11,8 +84,10 @@ const LoginPage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
   const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [registerRole, setRegisterRole] = useState("USER");
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [emailValidationError, setEmailValidationError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,17 +121,39 @@ const LoginPage = () => {
     submitLabel = "Create Account";
   }
   const hasAuthAlert = Boolean(error || success);
+  const shouldShowGoogleAuth = !isRegisterMode || registerRole === "USER";
+  const activeTheme = isRegisterMode
+    ? REGISTER_ROLE_THEME[registerRole]
+    : REGISTER_ROLE_THEME.USER;
 
   const switchAuthMode = (registerMode) => {
     setIsRegisterMode(registerMode);
     setError(null);
     setSuccess(null);
+    setEmailValidationError("");
+    setRegisterRole("USER");
 
     if (!registerMode) {
       setName("");
       setConfirmPassword("");
     }
   };
+
+  const emailPlaceholder =
+    isRegisterMode && registerRole === "ADMIN"
+      ? "admin...@urh.com"
+      : isRegisterMode && registerRole === "TECHNICIAN"
+        ? "tech...@urh.com"
+        : "you@example.com";
+
+  useEffect(() => {
+    if (!isRegisterMode) {
+      setEmailValidationError("");
+      return;
+    }
+
+    setEmailValidationError(validateEmailByRole(registerRole, email));
+  }, [isRegisterMode, registerRole, email]);
 
   const handleManualAuth = async (e) => {
     e.preventDefault();
@@ -70,27 +167,64 @@ const LoginPage = () => {
       return;
     }
 
+    if (isRegisterMode) {
+      const roleEmailError = validateEmailByRole(registerRole, email);
+      if (roleEmailError) {
+        setEmailValidationError(roleEmailError);
+        setError(roleEmailError);
+        return;
+      }
+    }
+
     setIsSubmitting(true);
 
     try {
       if (isRegisterMode) {
-        await api.post("/auth/register", { name, email, password });
+        await api.post("/auth/register", {
+          name,
+          email,
+          password,
+          role: registerRole,
+        });
         setSuccess("Registration successful! Please login.");
         setIsRegisterMode(false);
       } else {
-        const { data } = await api.post("/auth/login", { email, password });
-        loginUser(data.token, {
-          id: data.id,
-          name: data.name,
-          email: data.email,
-          roles: data.roles,
+        const { data } = await api.post("/auth/login", {
+          email,
+          password,
         });
-        navigate("/dashboard", { replace: true });
+        const decodedToken = decodeJwtPayload(data.token);
+        if (!decodedToken) {
+          setError("Unable to determine account role from token.");
+          navigate("/login", { replace: true });
+          return;
+        }
+
+        const resolvedRoute = getLandingRouteFromToken(data.token);
+
+        loginUser(data.token, {
+          id: decodedToken.id || data.id,
+          name: decodedToken.name || data.name,
+          email: decodedToken.email || data.email,
+          roles: decodedToken.roles,
+        });
+        navigate(resolvedRoute, {
+          replace: true,
+        });
       }
     } catch (err) {
       if (err.code === "ERR_NETWORK") {
         setError(
           "Cannot connect to server. Please ensure backend is running on port 8080.",
+        );
+        return;
+      }
+
+      if (err.response?.status === 401) {
+        setError(
+          isRegisterMode
+            ? "Registration request was rejected. Please clear old session and try again."
+            : "Invalid email or password.",
         );
         return;
       }
@@ -113,7 +247,7 @@ const LoginPage = () => {
       <div className="auth-shell mx-auto grid h-full w-full max-w-6xl overflow-hidden rounded-2xl glass-card xl:grid-cols-2 xl:rounded-3xl">
         <section className="auth-hero relative hidden overflow-hidden bg-slate-950 p-8 text-white xl:block">
           <div className="absolute -left-16 -top-16 h-56 w-56 rounded-full bg-cyan-500/35 blur-3xl" />
-          <div className="absolute -bottom-16 right-0 h-56 w-56 rounded-full bg-emerald-500/25 blur-3xl" />
+          <div className="absolute -bottom-16 right-0 h-56 w-56 rounded-full bg-indigo-500/25 blur-3xl" />
 
           <div className="relative z-10 space-y-6">
             <div className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">
@@ -141,8 +275,10 @@ const LoginPage = () => {
         </section>
 
         <section
-          className={`auth-form-panel flex h-full items-center justify-center overflow-hidden bg-white px-5 sm:px-7 ${
-            isRegisterMode ? "py-4 sm:py-5" : "py-2.5 sm:py-3"
+          className={`auth-form-panel flex h-full justify-center overflow-y-auto bg-white px-5 auth-scroll-user sm:px-7 ${
+            isRegisterMode
+              ? "items-start py-4 sm:py-5"
+              : "items-center py-2.5 sm:py-3"
           }`}
         >
           <div
@@ -156,7 +292,7 @@ const LoginPage = () => {
               }`}
             >
               <div
-                className={`rounded-2xl bg-teal-700 shadow-lg shadow-teal-800/20 ${
+                className={`rounded-2xl shadow-lg ${activeTheme.iconBg} ${activeTheme.iconShadow} ${
                   isRegisterMode ? "p-2.5" : "p-3"
                 }`}
               >
@@ -182,13 +318,30 @@ const LoginPage = () => {
                 : "Sign in to your account"}
             </p>
 
+            {isRegisterMode && (
+              <RoleSelector
+                value={registerRole}
+                onChange={setRegisterRole}
+                accentButtonClassName={activeTheme.selectorActive}
+                accentShadowClassName={activeTheme.selectorShadow}
+                accentRingClassName={activeTheme.selectorRing}
+                className="mb-4 sm:mb-5"
+              />
+            )}
+
             {error && (
               <div className="mb-4 flex items-center justify-center rounded-xl border border-rose-200 bg-rose-50 p-2.5 text-xs font-medium text-rose-600 sm:text-sm">
                 {error}
               </div>
             )}
             {success && (
-              <div className="mb-4 flex items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 p-2.5 text-xs font-medium text-emerald-700 sm:text-sm">
+              <div
+                className={`mb-4 flex items-center justify-center rounded-xl border p-2.5 text-xs font-medium sm:text-sm ${
+                  isRegisterMode
+                    ? activeTheme.successBox
+                    : "border-blue-200 bg-blue-50 text-blue-700"
+                }`}
+              >
                 {success}
               </div>
             )}
@@ -233,10 +386,24 @@ const LoginPage = () => {
                   type="email"
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input-field"
-                  placeholder="you@example.com"
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (error) {
+                      setError(null);
+                    }
+                  }}
+                  className={`input-field ${
+                    emailValidationError
+                      ? "border-rose-300 bg-rose-50 focus:border-rose-500 focus:ring-rose-200"
+                      : ""
+                  }`}
+                  placeholder={emailPlaceholder}
                 />
+                {emailValidationError && (
+                  <p className="mt-1.5 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">
+                    {emailValidationError}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -262,7 +429,7 @@ const LoginPage = () => {
                     aria-label={
                       showPassword ? "Hide password" : "Show password"
                     }
-                    className="absolute inset-y-0 right-0 flex items-center justify-center pr-4 text-slate-400 transition hover:text-teal-700"
+                    className={`absolute inset-y-0 right-0 flex items-center justify-center pr-4 text-slate-400 transition ${activeTheme.hoverText}`}
                   >
                     {showPassword ? (
                       <EyeOff className="h-5 w-5" />
@@ -301,7 +468,7 @@ const LoginPage = () => {
                           ? "Hide confirm password"
                           : "Show confirm password"
                       }
-                      className="absolute inset-y-0 right-0 flex items-center justify-center pr-4 text-slate-400 transition hover:text-teal-700"
+                      className={`absolute inset-y-0 right-0 flex items-center justify-center pr-4 text-slate-400 transition ${activeTheme.hoverText}`}
                     >
                       {showConfirmPassword ? (
                         <EyeOff className="h-5 w-5" />
@@ -315,8 +482,12 @@ const LoginPage = () => {
 
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className="primary-btn mt-1 w-full space-x-2 disabled:cursor-not-allowed disabled:opacity-70"
+                disabled={isSubmitting || Boolean(emailValidationError)}
+                className={`mt-1 inline-flex w-full items-center justify-center space-x-2 rounded-xl px-4 py-3 text-sm font-semibold text-white transition duration-300 disabled:cursor-not-allowed disabled:opacity-70 ${
+                  isRegisterMode
+                    ? `bg-gradient-to-r ${activeTheme.buttonGradient} shadow-lg ${activeTheme.buttonShadow} hover:-translate-y-0.5`
+                    : "primary-btn"
+                }`}
               >
                 {isRegisterMode ? (
                   <UserPlus className="h-5 w-5" />
@@ -327,21 +498,25 @@ const LoginPage = () => {
               </button>
             </form>
 
-            <div
-              className={`flex items-center justify-between ${
-                isRegisterMode ? "mt-3.5 sm:mt-4" : "mt-5 sm:mt-6"
-              }`}
-            >
-              <span className="w-1/5 border-b border-slate-200 md:w-1/4" />
-              <span className="text-center text-xs uppercase tracking-[0.14em] text-slate-400">
-                Or continue with
-              </span>
-              <span className="w-1/5 border-b border-slate-200 md:w-1/4" />
-            </div>
+            {shouldShowGoogleAuth && (
+              <div
+                className={`flex items-center justify-between ${
+                  isRegisterMode ? "mt-3.5 sm:mt-4" : "mt-5 sm:mt-6"
+                }`}
+              >
+                <span className="w-1/5 border-b border-slate-200 md:w-1/4" />
+                <span className="text-center text-xs uppercase tracking-[0.14em] text-slate-400">
+                  Or continue with
+                </span>
+                <span className="w-1/5 border-b border-slate-200 md:w-1/4" />
+              </div>
+            )}
 
-            <div className={isRegisterMode ? "mt-3 sm:mt-4" : "mt-4 sm:mt-5"}>
-              <GoogleAuthButton />
-            </div>
+            {shouldShowGoogleAuth && (
+              <div className={isRegisterMode ? "mt-3 sm:mt-4" : "mt-4 sm:mt-5"}>
+                <GoogleAuthButton />
+              </div>
+            )}
 
             <div
               className={`border-t border-slate-200 text-center text-sm ${
@@ -353,8 +528,9 @@ const LoginPage = () => {
                   ? "Already have an account? "
                   : "Don't have an account? "}
                 <button
+                  type="button"
                   onClick={() => switchAuthMode(!isRegisterMode)}
-                  className="font-semibold text-teal-700 transition hover:text-teal-600"
+                  className={`font-semibold transition ${activeTheme.linkText}`}
                 >
                   {isRegisterMode ? "Sign in" : "Register now"}
                 </button>

@@ -1,6 +1,11 @@
 import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import {
+  decodeJwtPayload,
+  getLandingRoute,
+  normalizeRoles,
+  useAuth,
+} from "../context/AuthContext";
 
 const OAuth2RedirectHandler = () => {
   const location = useLocation();
@@ -14,7 +19,10 @@ const OAuth2RedirectHandler = () => {
 
     if (token) {
       loginUser(token, null);
-      navigate("/dashboard", { replace: true });
+      const payload = decodeJwtPayload(token);
+      navigate(getLandingRoute(normalizeRoles(payload?.roles)), {
+        replace: true,
+      });
     } else {
       navigate("/login?error=" + (error || "OAuth2 authentication failed"), {
         replace: true,

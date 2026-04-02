@@ -24,7 +24,7 @@ public class UserDetailsImpl implements UserDetails, OAuth2User {
     private String password;
 
     private Collection<? extends GrantedAuthority> authorities;
-    private Map<String, Object> attributes;
+    private transient Map<String, Object> attributes;
 
     public UserDetailsImpl(String id, String name, String email, String password,
                            Collection<? extends GrantedAuthority> authorities) {
@@ -36,7 +36,11 @@ public class UserDetailsImpl implements UserDetails, OAuth2User {
     }
 
     public static UserDetailsImpl build(User user) {
-        List<GrantedAuthority> authorities = user.getRoles().stream()
+        List<com.sliit.paf.model.Role> roles = user.getRoles() == null || user.getRoles().isEmpty()
+            ? List.of(com.sliit.paf.model.Role.USER)
+            : user.getRoles();
+
+        List<GrantedAuthority> authorities = roles.stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
                 .collect(Collectors.toList());
 
@@ -78,7 +82,7 @@ public class UserDetailsImpl implements UserDetails, OAuth2User {
 
     @Override
     public String getUsername() {
-        return email;
+        return email == null ? "" : email;
     }
 
     @Override

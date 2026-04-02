@@ -1,26 +1,160 @@
-import React, { createContext, useState, useEffect, useContext } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useState,
+  useEffect,
+  useContext,
+} from "react";
 import api from "../services/api";
 
 const AuthContext = createContext();
 
-const decodeJwtPayload = (token) => {
+export const normalizeRole = (role) => {
+  if (!role) return "USER";
+
+  const rawRole =
+    typeof role === "string"
+      ? role
+      : role?.authority || role?.name || role?.role || "USER";
+
+  const trimmedRole = String(rawRole)
+    .trim()
+    .replace(/^['\"]|['\"]$/g, "");
+  const unprefixedRole = trimmedRole.startsWith("ROLE_")
+    ? trimmedRole.slice(5)
+    : trimmedRole;
+
+  return unprefixedRole.toUpperCase() || "USER";
+};
+
+const collectRoleValues = (value, collected = []) => {
+  if (!value) return collected;
+
+  if (Array.isArray(value)) {
+    value.forEach((item) => collectRoleValues(item, collected));
+    return collected;
+  }
+
+  if (typeof value === "string") {
+    collected.push(value);
+    return collected;
+  }
+
+  if (typeof value === "object") {
+    Object.values(value).forEach((item) => collectRoleValues(item, collected));
+  }
+
+  return collected;
+};
+
+export const normalizeRoles = (roles) => {
+  if (!roles) {
+    return ["USER"];
+  }
+
+  let roleList = Array.isArray(roles) ? roles : [roles];
+
+  if (!Array.isArray(roles) && typeof roles === "string") {
+    const trimmed = roles.trim();
+
+    if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        roleList = Array.isArray(parsed) ? parsed : [parsed];
+      } catch {
+        roleList = trimmed.split(/[\s,]+/).filter(Boolean);
+      }
+    } else {
+      roleList = trimmed.split(/[\s,]+/).filter(Boolean);
+    }
+  }
+
+  if (roleList.length === 0) {
+    return ["USER"];
+  }
+
+  const normalized = roleList
+    .map(normalizeRole)
+    .filter(Boolean)
+    .filter((role) => role !== "NULL" && role !== "UNDEFINED");
+
+  if (normalized.length === 0) {
+    return ["USER"];
+  }
+
+  return [...new Set(normalized)];
+};
+
+const extractRolesFromClaims = (decoded = {}) => {
+  const directClaimRoles = decoded.roles || decoded.role || decoded.authorities;
+  const collectedValues = collectRoleValues(directClaimRoles);
+  const normalized = normalizeRoles(
+    collectedValues.length > 0 ? collectedValues : collectRoleValues(decoded),
+  );
+
+  return normalized;
+};
+
+export const decodeJwtPayload = (token) => {
   try {
     const payloadPart = token.split(".")[1];
     if (!payloadPart) return null;
 
     const base64 = payloadPart.replaceAll("-", "+").replaceAll("_", "/");
-    const decoded = JSON.parse(globalThis.atob(base64));
+    const paddedBase64 = base64.padEnd(
+      base64.length + ((4 - (base64.length % 4)) % 4),
+      "=",
+    );
+    const decoded = JSON.parse(globalThis.atob(paddedBase64));
 
     return {
       id: decoded.id || "",
       email: decoded.sub || "",
       name: decoded.name || (decoded.sub ? decoded.sub.split("@")[0] : "User"),
-      roles: Array.isArray(decoded.roles) ? decoded.roles : ["USER"],
+      roles: extractRolesFromClaims(decoded),
       provider: "LOCAL",
     };
   } catch {
     return null;
   }
+};
+
+export const getRoleFromToken = (token) => {
+  const payload = decodeJwtPayload(token);
+  if (!payload) return "USER";
+
+  const normalizedRoles = normalizeRoles(payload.roles);
+  if (normalizedRoles.includes("ADMIN")) {
+    return "ADMIN";
+  }
+
+  if (normalizedRoles.includes("TECHNICIAN")) {
+    return "TECHNICIAN";
+  }
+
+  const email = String(payload.email || "").toLowerCase();
+  if (email.startsWith("admin")) return "ADMIN";
+  if (email.startsWith("tech")) return "TECHNICIAN";
+
+  return "USER";
+};
+
+export const getLandingRouteFromToken = (token) => {
+  return getLandingRoute([getRoleFromToken(token)]);
+};
+
+export const getLandingRoute = (roles = []) => {
+  const normalizedRoles = normalizeRoles(roles);
+
+  if (normalizedRoles.includes("ADMIN")) {
+    return "/admin-dashboard";
+  }
+
+  if (normalizedRoles.includes("TECHNICIAN")) {
+    return "/technician-dashboard";
+  }
+
+  return "/user-dashboard";
 };
 
 export const AuthProvider = ({ children }) => {
@@ -42,10 +176,25 @@ export const AuthProvider = ({ children }) => {
         setLoading(true);
       }
 
+      const tokenUser = decodeJwtPayload(token);
+      if (tokenUser && !user) {
+        setUser(tokenUser);
+      }
+
       try {
         // If token exists, fetch user details
         const res = await api.get("/users/me");
-        setUser(res.data);
+        const apiRoles = normalizeRoles(res.data?.roles);
+        const tokenRoles = normalizeRoles(tokenUser?.roles);
+        const effectiveRoles =
+          apiRoles.includes("ADMIN") || apiRoles.includes("TECHNICIAN")
+            ? apiRoles
+            : tokenRoles;
+
+        setUser({
+          ...res.data,
+          roles: effectiveRoles,
+        });
       } catch (error) {
         console.error("Failed to load user", error);
 
@@ -54,7 +203,7 @@ export const AuthProvider = ({ children }) => {
           logout();
         } else if (!user) {
           // Fallback to JWT claims to keep navigation fast even when user API is temporarily unavailable.
-          const fallbackUser = decodeJwtPayload(token);
+          const fallbackUser = tokenUser || decodeJwtPayload(token);
           if (fallbackUser) {
             setUser(fallbackUser);
           }
@@ -66,12 +215,15 @@ export const AuthProvider = ({ children }) => {
     loadUser();
   }, [token]);
 
-  const loginUser = (newToken, userData) => {
+  const loginUser = useCallback((newToken, userData) => {
     localStorage.setItem("token", newToken);
     setToken(newToken);
 
     if (userData) {
-      setUser(userData);
+      setUser({
+        ...userData,
+        roles: normalizeRoles(userData.roles),
+      });
       return;
     }
 
@@ -79,13 +231,13 @@ export const AuthProvider = ({ children }) => {
     if (fallbackUser) {
       setUser(fallbackUser);
     }
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem("token");
     setToken(null);
     setUser(null);
-  };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, token, loginUser, logout, loading }}>

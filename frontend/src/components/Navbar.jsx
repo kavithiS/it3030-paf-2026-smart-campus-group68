@@ -2,7 +2,7 @@ import React from "react";
 import { Menu, Moon, Sun } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 
-const Navbar = ({ onMenuClick }) => {
+const Navbar = ({ onMenuClick, title = "Dashboard" }) => {
   const { isDarkMode, toggleTheme } = useTheme();
 
   return (
@@ -19,7 +19,7 @@ const Navbar = ({ onMenuClick }) => {
 
         <div className="hidden sm:block">
           <h1 className="text-lg font-bold text-slate-900 transition-colors duration-300 dark:text-slate-100">
-            Dashboard
+            {title}
           </h1>
         </div>
       </div>

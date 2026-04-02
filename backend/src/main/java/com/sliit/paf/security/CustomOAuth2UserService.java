@@ -4,7 +4,6 @@ import com.sliit.paf.model.Provider;
 import com.sliit.paf.model.Role;
 import com.sliit.paf.model.User;
 import com.sliit.paf.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -18,21 +17,24 @@ import java.util.Optional;
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    public CustomOAuth2UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
         try {
-            return processOAuth2User(userRequest, oAuth2User);
+            return processOAuth2User(oAuth2User);
         } catch (Exception ex) {
             throw new OAuth2AuthenticationException(ex.getMessage());
         }
     }
 
-    private OAuth2User processOAuth2User(OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
+    private OAuth2User processOAuth2User(OAuth2User oAuth2User) {
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
 
@@ -41,10 +43,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         if (userOptional.isPresent()) {
             user = userOptional.get();
-            if (!user.getProvider().equals(Provider.GOOGLE)) {
-                // If the user previously signed up with local but now uses google, we can update or reject.
-                // For simplicity, we can update them to google or just accept them.
+            boolean hasNonUserRole = user.getRoles() != null && user.getRoles().stream()
+                    .anyMatch(role -> role != Role.USER);
+
+            if (hasNonUserRole) {
+                throw new IllegalStateException(
+                        "Google sign-in is only allowed for USER accounts.");
+            }
+
+            if (user.getProvider() != Provider.GOOGLE) {
                 user.setProvider(Provider.GOOGLE);
+                user.setRoles(List.of(Role.USER));
                 user = userRepository.save(user);
             }
         } else {

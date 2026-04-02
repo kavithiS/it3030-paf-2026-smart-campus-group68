@@ -4,27 +4,35 @@ import com.sliit.paf.dto.JwtResponse;
 import com.sliit.paf.dto.LoginRequest;
 import com.sliit.paf.dto.MessageResponse;
 import com.sliit.paf.dto.RegisterRequest;
+import com.sliit.paf.service.DuplicateEmailException;
 import com.sliit.paf.service.AuthService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<Object> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         try {
             JwtResponse jwtResponse = authService.authenticateUser(loginRequest);
             return ResponseEntity.ok(jwtResponse);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse(e.getMessage()));
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new MessageResponse("Error: Invalid email or password!"));
@@ -38,25 +46,34 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest signUpRequest) {
+    public ResponseEntity<Object> registerUser(@Valid @RequestBody RegisterRequest signUpRequest) {
         try {
             authService.registerUser(signUpRequest);
             return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+        } catch (DuplicateEmailException | IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse(e.getMessage()));
         } catch (RuntimeException e) {
-            String message = e.getMessage() != null ? e.getMessage() : "Registration failed.";
-
-            if (message.contains("already in use")) {
-                return ResponseEntity.badRequest().body(new MessageResponse(message));
-            }
-
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body(new MessageResponse("Registration service is unavailable. Please try again later."));
         }
     }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<MessageResponse> handleValidationException(MethodArgumentNotValidException exception) {
+        String message = exception.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(FieldError::getDefaultMessage)
+                .findFirst()
+                .orElse("Validation failed.");
+
+        return ResponseEntity.badRequest().body(new MessageResponse(message));
+    }
     
     // Test endpoint to verify connectivity
     @GetMapping("/test")
-    public ResponseEntity<?> testAuth() {
+    public ResponseEntity<MessageResponse> testAuth() {
         return ResponseEntity.ok(new MessageResponse("Backend API is running."));
     }
 }

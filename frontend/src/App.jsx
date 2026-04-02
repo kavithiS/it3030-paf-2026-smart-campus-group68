@@ -1,44 +1,59 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
-import Dashboard from "./pages/Dashboard";
+import UserDashboard from "./pages/UserDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import TechnicianDashboard from "./pages/TechnicianDashboard";
 import OAuth2RedirectHandler from "./pages/OAuth2RedirectHandler";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import ProtectedRoute from "./routes/ProtectedRoute";
-import { useAuth } from "./context/AuthContext";
+import {
+  decodeJwtPayload,
+  getLandingRoute,
+  normalizeRoles,
+  useAuth,
+} from "./context/AuthContext";
 
 function App() {
-  const { token } = useAuth();
+  const { token, user, loading } = useAuth();
+  const tokenRoles = token ? decodeJwtPayload(token)?.roles : [];
+  const effectiveRoles = user?.roles || normalizeRoles(tokenRoles);
+  const defaultRoute = token ? getLandingRoute(effectiveRoles) : "/login";
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-slate-700">
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen text-slate-900 transition-colors duration-300 dark:text-slate-100">
       <Routes>
-        <Route
-          path="/"
-          element={
-            token ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
-          }
-        />
+        <Route path="/" element={<Navigate to={defaultRoute} />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/oauth-success" element={<OAuthSuccess />} />
         <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
 
         {/* Protected Routes */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<Dashboard />} />
+        <Route element={<ProtectedRoute allowedRoles={["USER"]} />}>
+          <Route path="/user-dashboard" element={<UserDashboard />} />
+          <Route
+            path="/dashboard"
+            element={<Navigate to="/user-dashboard" replace />}
+          />
         </Route>
 
         {/* Role Specific Protect Routes */}
         <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        </Route>
+
+        <Route element={<ProtectedRoute allowedRoles={["TECHNICIAN"]} />}>
           <Route
-            path="/admin"
-            element={
-              <div className="mx-auto max-w-5xl px-4 py-10">
-                <div className="soft-card rounded-2xl p-8 text-slate-700 transition-colors duration-300 dark:text-slate-200">
-                  Admin panel container
-                </div>
-              </div>
-            }
+            path="/technician-dashboard"
+            element={<TechnicianDashboard />}
           />
         </Route>
 
@@ -60,6 +75,8 @@ function App() {
             </div>
           }
         />
+
+        <Route path="*" element={<Navigate to={defaultRoute} replace />} />
       </Routes>
     </div>
   );

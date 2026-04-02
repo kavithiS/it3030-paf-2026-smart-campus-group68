@@ -2,8 +2,11 @@ import React from "react";
 
 const GoogleAuthButton = () => {
   const handleGoogleLogin = () => {
-    globalThis.location.href =
-      "http://localhost:8080/oauth2/authorization/google";
+    const apiBaseUrl =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
+    const backendBaseUrl = apiBaseUrl.replace(/\/api\/?$/, "");
+
+    globalThis.location.href = `${backendBaseUrl}/oauth2/authorization/google`;
   };
 
   return (

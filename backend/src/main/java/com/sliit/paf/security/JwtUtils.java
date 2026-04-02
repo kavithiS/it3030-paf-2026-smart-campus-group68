@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class JwtUtils {
@@ -27,10 +27,7 @@ public class JwtUtils {
 
     public String generateJwtToken(Authentication authentication) {
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-
-        List<String> roles = userPrincipal.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+        List<String> roles = getRoleNames(userPrincipal.getAuthorities());
 
         return Jwts.builder()
                 .setSubject((userPrincipal.getUsername()))
@@ -64,7 +61,7 @@ public class JwtUtils {
 
     public boolean validateJwtToken(String authToken) {
         try {
-            Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);
+            Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(authToken);
             return true;
         } catch (MalformedJwtException e) {
             logger.error("Invalid JWT token: {}", e.getMessage());
@@ -77,5 +74,20 @@ public class JwtUtils {
         }
 
         return false;
+    }
+
+    public List<String> getRoleNames(Collection<? extends GrantedAuthority> authorities) {
+        return authorities.stream()
+                .map(GrantedAuthority::getAuthority)
+                .map(this::normalizeRoleName)
+                .toList();
+    }
+
+    private String normalizeRoleName(String authority) {
+        if (authority == null) {
+            return "USER";
+        }
+
+        return authority.startsWith("ROLE_") ? authority.substring(5) : authority;
     }
 }
