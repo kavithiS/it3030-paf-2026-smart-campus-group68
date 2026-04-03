@@ -127,6 +127,11 @@ const LoginPage = () => {
   const activeTheme = isRegisterMode
     ? REGISTER_ROLE_THEME[registerRole]
     : REGISTER_ROLE_THEME.USER;
+  const areRegisterPasswordsMatching =
+    isRegisterMode &&
+    password.trim().length > 0 &&
+    confirmPassword.trim().length > 0 &&
+    password === confirmPassword;
 
   const switchAuthMode = (registerMode) => {
     setIsRegisterMode(registerMode);
@@ -430,7 +435,11 @@ const LoginPage = () => {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="input-field pr-12"
+                    className={`input-field pr-12 ${
+                      areRegisterPasswordsMatching
+                        ? "border-emerald-400 focus:border-emerald-500 focus:ring-emerald-200"
+                        : ""
+                    }`}
                     placeholder="••••••••"
                   />
                   <button
@@ -476,7 +485,11 @@ const LoginPage = () => {
                       required
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="input-field pr-12"
+                      className={`input-field pr-12 ${
+                        areRegisterPasswordsMatching
+                          ? "border-emerald-400 focus:border-emerald-500 focus:ring-emerald-200"
+                          : ""
+                      }`}
                       placeholder="••••••••"
                     />
                     <button
