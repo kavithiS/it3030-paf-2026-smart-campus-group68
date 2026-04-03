@@ -194,32 +194,35 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
     resendButtonLabel = `Resend Code (${resendCooldownSeconds}s)`;
   }
 
+  let modalTitle = "Request Verification Code";
+  let modalDescription =
+    "Enter your registered email to receive a verification code.";
+
+  if (state.step === "verify") {
+    modalTitle = "Verify Security Code";
+    modalDescription = "Enter the 6-digit code shown in the popup.";
+  } else if (state.step === "reset") {
+    modalTitle = "Reset Your Password";
+    modalDescription = "Verify your current password and set a new password.";
+  }
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/45 px-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-        <div className="relative mb-4">
+      <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+        <button
+          type="button"
+          onClick={closeModal}
+          className="absolute right-3 top-3 rounded-md px-2 py-1 text-sm font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+        >
+          Close
+        </button>
+        <div className="mb-4">
           <div className="text-center">
-            <h3 className="text-lg font-bold text-slate-900">
-              Forgot Password
-            </h3>
-            <p className="mt-1 text-sm text-slate-500">
-              {state.step === "email" &&
-                "Enter your registered email to receive a verification code."}
-              {state.step === "verify" &&
-                "Enter the 6-digit code shown in the popup."}
-              {state.step === "reset" &&
-                "Verify your current password and set a new password."}
-            </p>
+            <h3 className="text-lg font-bold text-slate-900">{modalTitle}</h3>
+            <p className="mt-1 text-sm text-slate-500">{modalDescription}</p>
           </div>
-          <button
-            type="button"
-            onClick={closeModal}
-            className="absolute right-0 top-0 rounded-md px-2 py-1 text-sm font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
-          >
-            Close
-          </button>
         </div>
 
         {state.error && (
@@ -241,7 +244,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                 htmlFor="forgotEmail"
                 className="mb-1 block text-sm font-semibold text-slate-600"
               >
-                Email
+                Registered Email Address
               </label>
               <input
                 id="forgotEmail"
@@ -270,7 +273,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                 htmlFor="verificationCode"
                 className="mb-1 block text-sm font-semibold text-slate-600"
               >
-                Verification Code
+                6-Digit Verification Code
               </label>
               <input
                 id="verificationCode"
@@ -309,7 +312,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                 htmlFor="forgotCurrentPassword"
                 className="mb-1 block text-sm font-semibold text-slate-600"
               >
-                Current Password
+                Current Account Password
               </label>
               <input
                 id="forgotCurrentPassword"
@@ -345,7 +348,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                 htmlFor="forgotConfirmPassword"
                 className="mb-1 block text-sm font-semibold text-slate-600"
               >
-                Confirm Password
+                Confirm New Password
               </label>
               <input
                 id="forgotConfirmPassword"
