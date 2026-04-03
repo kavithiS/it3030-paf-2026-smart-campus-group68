@@ -9,6 +9,7 @@ import api from "../services/api";
 import { LogIn, UserPlus, Fingerprint, Eye, EyeOff } from "lucide-react";
 import GoogleAuthButton from "../components/GoogleAuthButton";
 import RoleSelector from "../components/RoleSelector";
+import ForgotPasswordModal from "../components/ForgotPasswordModal";
 
 const ADMIN_EMAIL_PATTERN = /^admin.*@urh\.com$/i;
 const TECH_EMAIL_PATTERN = /^tech.*@urh\.com$/i;
@@ -91,6 +92,7 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
   const { loginUser } = useAuth();
   const navigate = useNavigate();
@@ -137,6 +139,14 @@ const LoginPage = () => {
       setName("");
       setConfirmPassword("");
     }
+  };
+
+  const openForgotPasswordModal = () => {
+    setShowForgotPasswordModal(true);
+  };
+
+  const closeForgotPasswordModal = () => {
+    setShowForgotPasswordModal(false);
   };
 
   const emailPlaceholder =
@@ -438,6 +448,17 @@ const LoginPage = () => {
                     )}
                   </button>
                 </div>
+                {!isRegisterMode && (
+                  <div className="mt-2 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={openForgotPasswordModal}
+                      className="text-xs font-semibold text-cyan-700 transition hover:text-cyan-600"
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
+                )}
               </div>
 
               {isRegisterMode && (
@@ -539,6 +560,11 @@ const LoginPage = () => {
           </div>
         </section>
       </div>
+
+      <ForgotPasswordModal
+        isOpen={showForgotPasswordModal}
+        onClose={closeForgotPasswordModal}
+      />
     </div>
   );
 };

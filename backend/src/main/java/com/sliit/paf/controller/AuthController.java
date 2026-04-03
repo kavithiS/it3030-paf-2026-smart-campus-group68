@@ -3,7 +3,10 @@ package com.sliit.paf.controller;
 import com.sliit.paf.dto.JwtResponse;
 import com.sliit.paf.dto.LoginRequest;
 import com.sliit.paf.dto.MessageResponse;
+import com.sliit.paf.dto.ForgotPasswordRequest;
+import com.sliit.paf.dto.ForgotPasswordResponse;
 import com.sliit.paf.dto.RegisterRequest;
+import com.sliit.paf.dto.ResetPasswordRequest;
 import com.sliit.paf.service.DuplicateEmailException;
 import com.sliit.paf.service.AuthService;
 import jakarta.validation.Valid;
@@ -56,6 +59,26 @@ public class AuthController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body(new MessageResponse("Registration service is unavailable. Please try again later."));
+        }
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Object> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        try {
+            String verificationCode = authService.generateForgotPasswordCode(request.getEmail());
+            return ResponseEntity.ok(new ForgotPasswordResponse("Verification code generated successfully.", verificationCode));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Object> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        try {
+            authService.resetPassword(request);
+            return ResponseEntity.ok(new MessageResponse("Password reset successful."));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
     }
 

@@ -17,6 +17,8 @@ api.interceptors.request.use(
     const isPublicAuthEndpoint =
       requestUrl.includes("/auth/login") ||
       requestUrl.includes("/auth/register") ||
+      requestUrl.includes("/auth/forgot-password") ||
+      requestUrl.includes("/auth/reset-password") ||
       requestUrl.includes("/auth/test");
 
     if (isPublicAuthEndpoint) {
