@@ -60,11 +60,11 @@ const validateEmailByRole = (role, email) => {
   const normalizedEmail = email.trim();
 
   if (role === "ADMIN" && !ADMIN_EMAIL_PATTERN.test(normalizedEmail)) {
-    return "Admin email must start with 'admin' and use @urh.com domain.";
+    return "Please use your authorized admin email.";
   }
 
   if (role === "TECHNICIAN" && !TECH_EMAIL_PATTERN.test(normalizedEmail)) {
-    return "Technician email must start with 'tech' and use @urh.com domain.";
+    return "Please use your authorized technician email.";
   }
 
   if (
@@ -72,7 +72,7 @@ const validateEmailByRole = (role, email) => {
     (USER_FORBIDDEN_PREFIX_PATTERN.test(normalizedEmail) ||
       USER_FORBIDDEN_DOMAIN_PATTERN.test(normalizedEmail))
   ) {
-    return "USER email cannot start with 'admin' or 'tech', and cannot use '@urh.com' domain";
+    return "Please use a valid user email";
   }
 
   return "";
@@ -141,10 +141,10 @@ const LoginPage = () => {
 
   const emailPlaceholder =
     isRegisterMode && registerRole === "ADMIN"
-      ? "admin...@urh.com"
+      ? "Enter admin email"
       : isRegisterMode && registerRole === "TECHNICIAN"
-        ? "tech...@urh.com"
-        : "you@example.com";
+        ? "Enter technician email"
+        : "Enter user email";
 
   useEffect(() => {
     if (!isRegisterMode) {
@@ -369,7 +369,7 @@ const LoginPage = () => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="input-field"
-                    placeholder="Dhanaja V Kulathunga"
+                    placeholder="Enter your full name"
                   />
                 </div>
               )}

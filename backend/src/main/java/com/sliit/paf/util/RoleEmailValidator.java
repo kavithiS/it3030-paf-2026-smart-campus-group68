@@ -41,15 +41,15 @@ public final class RoleEmailValidator {
 
     public static String getErrorMessage(Role role) {
         if (role == Role.ADMIN) {
-            return "Admin email must start with 'admin' and use @urh.com domain.";
+            return "Please use your authorized admin email";
         }
 
         if (role == Role.TECHNICIAN) {
-            return "Technician email must start with 'tech' and use @urh.com domain.";
+            return "Please use your authorized technician email";
         }
 
         if (role == Role.USER) {
-            return "Invalid email for USER role";
+            return "Please use a valid user email";
         }
 
         return "Invalid email for selected role.";
