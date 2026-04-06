@@ -229,15 +229,16 @@ function LoginForm({ onForgotPasswordClick = () => {} }) {
           </button>
         </div>
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="mt-1 w-full flex items-center justify-center space-x-2 rounded-xl px-4 py-3 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70 bg-gradient-to-r from-[#1E2A50] to-[#3B4A89] animate-fade-in-up"
-          style={{ animationDelay: "350ms" }}
-        >
-          <LogIn className="h-5 w-5" />
-          <span>{isSubmitting ? "Signing in..." : "Sign In"}</span>
-        </button>
+        <div className="animate-fade-in-up" style={{ animationDelay: "350ms" }}>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="mt-1 w-full flex items-center justify-center space-x-2 rounded-xl px-4 py-3 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70 bg-gradient-to-r from-[#1E2A50] to-[#3B4A89]"
+          >
+            <LogIn className="h-5 w-5" />
+            <span>{isSubmitting ? "Signing in..." : "Sign In"}</span>
+          </button>
+        </div>
       </form>
 
       <div
@@ -613,30 +614,30 @@ const AuthPage = () => {
         <div className="hidden md:block md:w-1/2 lg:pl-8 text-white pr-4 animate-fade-in-up">
           <Link
             to="/"
-            className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.15em] text-blue-200 backdrop-blur-md mb-8 hover:bg-white/20 transition-all group"
+            className="inline-flex items-center rounded-full border border-[#3B4A89]/60 bg-[#1E2A50]/60 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.15em] text-blue-100 backdrop-blur-md mb-8 hover:bg-[#1E2A50]/80 transition-all group shadow-lg"
           >
-            <GraduationCap className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+            <GraduationCap className="w-4 h-4 mr-2 text-blue-300 group-hover:-translate-x-1 transition-transform" />
             UniReserveHub
           </Link>
-          <h1 className="text-4xl md:text-5xl lg:text-5xl font-extrabold leading-[1.15] mb-6 tracking-tight drop-shadow-lg text-transparent bg-clip-text bg-gradient-to-r from-white to-indigo-200">
+          <h1 className="text-4xl md:text-5xl lg:text-5xl font-extrabold leading-[1.15] mb-6 tracking-tight drop-shadow-lg text-transparent bg-clip-text bg-gradient-to-r from-sky-200 via-blue-300 to-indigo-400">
             Manage Resources, Bookings, and Incidents in One Place
           </h1>
-          <p className="text-lg text-indigo-100/90 leading-relaxed mb-8 max-w-lg drop-shadow-md">
+          <p className="text-lg text-slate-100 leading-relaxed mb-8 max-w-lg drop-shadow-md font-medium">
             Securely sign in to manage bookings, track incidents, and easily
             stay updated across your campus operations dashboard.
           </p>
 
           <ul className="space-y-3">
-            <li className="flex items-center text-[0.95rem] font-medium text-slate-100 bg-black/20 backdrop-blur-sm px-4 py-3 rounded-2xl border border-white/10 max-w-sm hover:border-white/20 transition-colors">
-              <div className="w-2.5 h-2.5 rounded-full bg-blue-400 mr-3 shadow-[0_0_8px_rgba(96,165,250,0.8)]"></div>
+            <li className="flex items-center text-[0.95rem] font-semibold text-white bg-[#1E2A50]/50 backdrop-blur-sm px-4 py-3 rounded-2xl border border-[#3B4A89]/50 max-w-sm hover:bg-[#1E2A50]/70 hover:border-[#3B4A89]/80 transition-colors shadow-lg">
+              <div className="w-2.5 h-2.5 rounded-full bg-blue-400 mr-3 shadow-[0_0_10px_rgba(96,165,250,0.8)]"></div>
               Facilities & Asset Catalogue
             </li>
-            <li className="flex items-center text-[0.95rem] font-medium text-slate-100 bg-black/20 backdrop-blur-sm px-4 py-3 rounded-2xl border border-white/10 max-w-sm hover:border-white/20 transition-colors delay-100">
-              <div className="w-2.5 h-2.5 rounded-full bg-indigo-400 mr-3 shadow-[0_0_8px_rgba(129,140,248,0.8)]"></div>
+            <li className="flex items-center text-[0.95rem] font-semibold text-white bg-[#1E2A50]/50 backdrop-blur-sm px-4 py-3 rounded-2xl border border-[#3B4A89]/50 max-w-sm hover:bg-[#1E2A50]/70 hover:border-[#3B4A89]/80 transition-colors delay-100 shadow-lg">
+              <div className="w-2.5 h-2.5 rounded-full bg-indigo-400 mr-3 shadow-[0_0_10px_rgba(129,140,248,0.8)]"></div>
               Workflow-based Booking System
             </li>
-            <li className="flex items-center text-[0.95rem] font-medium text-slate-100 bg-black/20 backdrop-blur-sm px-4 py-3 rounded-2xl border border-white/10 max-w-sm hover:border-white/20 transition-colors delay-200">
-              <div className="w-2.5 h-2.5 rounded-full bg-purple-400 mr-3 shadow-[0_0_8px_rgba(192,132,252,0.8)]"></div>
+            <li className="flex items-center text-[0.95rem] font-semibold text-white bg-[#1E2A50]/50 backdrop-blur-sm px-4 py-3 rounded-2xl border border-[#3B4A89]/50 max-w-sm hover:bg-[#1E2A50]/70 hover:border-[#3B4A89]/80 transition-colors delay-200 shadow-lg">
+              <div className="w-2.5 h-2.5 rounded-full bg-purple-400 mr-3 shadow-[0_0_10px_rgba(192,132,252,0.8)]"></div>
               Maintenance & Incident Ticketing
             </li>
           </ul>
