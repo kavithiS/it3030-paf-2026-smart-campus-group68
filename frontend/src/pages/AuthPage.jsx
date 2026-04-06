@@ -663,10 +663,6 @@ const AuthPage = () => {
               )}
             </div>
 
-            {/* decorative internal gradients based on state */}
-            <div
-              className={`absolute top-0 right-0 w-full h-1 bg-gradient-to-r transition-all duration-700 ${isRegisterMode ? "from-indigo-500 to-purple-600" : "from-blue-500 to-indigo-600"}`}
-            ></div>
           </div>
         </div>
       </div>
