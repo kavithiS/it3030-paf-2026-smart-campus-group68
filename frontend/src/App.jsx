@@ -1,12 +1,13 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import LoginPage from "./pages/LoginPage";
+import AuthPage from "./pages/AuthPage";
 import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import TechnicianDashboard from "./pages/TechnicianDashboard";
 import OAuth2RedirectHandler from "./pages/OAuth2RedirectHandler";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import LandingPage from "./pages/LandingPage";
 import {
   decodeJwtPayload,
   getLandingRoute,
@@ -18,7 +19,7 @@ function App() {
   const { token, user, loading } = useAuth();
   const tokenRoles = token ? decodeJwtPayload(token)?.roles : [];
   const effectiveRoles = user?.roles || normalizeRoles(tokenRoles);
-  const defaultRoute = token ? getLandingRoute(effectiveRoles) : "/login";
+  const defaultRoute = token ? getLandingRoute(effectiveRoles) : "/";
 
   if (loading) {
     return (
@@ -31,8 +32,9 @@ function App() {
   return (
     <div className="min-h-screen text-slate-900 transition-colors duration-300 dark:text-slate-100">
       <Routes>
-        <Route path="/" element={<Navigate to={defaultRoute} />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={token ? <Navigate to={defaultRoute} replace /> : <LandingPage />} />
+        <Route path="/login" element={<AuthPage />} />
+        <Route path="/register" element={<AuthPage />} />
         <Route path="/oauth-success" element={<OAuthSuccess />} />
         <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
 

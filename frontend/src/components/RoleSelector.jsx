@@ -47,7 +47,7 @@ const RoleSelector = ({
         role="radiogroup"
         aria-label="Select role"
         onKeyDown={handleKeyDown}
-        className="mx-auto grid w-full max-w-md grid-cols-3 gap-1 rounded-full border border-slate-200 bg-slate-100/80 p-1 shadow-sm"
+        className="mx-auto grid w-full max-w-md grid-cols-3 gap-1 rounded-full border border-slate-200 bg-slate-100/50 p-1 shadow-sm"
       >
         {ROLE_OPTIONS.map((role) => {
           const isActive = value === role;
@@ -59,8 +59,8 @@ const RoleSelector = ({
               role="radio"
               aria-checked={isActive}
               tabIndex={isActive ? 0 : -1}
-              onClick={() => onChange(role)}
-              className={`rounded-full px-3 py-2 text-center text-xs font-bold tracking-[0.12em] outline-none transition duration-300 sm:text-sm ${
+              onClick={() => onChange(role.trim())}
+              className={`flex w-full items-center justify-center rounded-full px-3 py-2 text-center text-xs font-bold tracking-[0.12em] outline-none transition duration-300 sm:text-sm ${
                 isActive
                   ? `scale-[1.03] bg-gradient-to-r ${accentButtonClassName} text-white shadow-md ${accentShadowClassName}`
                   : "text-slate-600 hover:bg-white hover:text-slate-900"

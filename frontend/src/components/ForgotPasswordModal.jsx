@@ -19,6 +19,7 @@ const RESEND_COOLDOWN_SECONDS = 30;
 
 const ForgotPasswordModal = ({ isOpen, onClose }) => {
   const [state, setState] = useState(INITIAL_STATE);
+  const [focusedInput, setFocusedInput] = useState(null);
   const [resendCooldownSeconds, setResendCooldownSeconds] = useState(0);
   const cooldownTimerRef = useRef(null);
 
@@ -41,6 +42,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
     }
 
     setResendCooldownSeconds(0);
+    setFocusedInput(null);
     setState(INITIAL_STATE);
     onClose();
   };
@@ -209,8 +211,8 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/45 px-4">
-      <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/45 p-4">
+      <div className="relative w-full max-w-md rounded-2xl bg-white/90 p-6 shadow-2xl backdrop-blur-sm">
         <button
           type="button"
           onClick={closeModal}
@@ -239,22 +241,26 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
 
         {state.step === "email" && (
           <form onSubmit={handleSendVerificationCode} className="space-y-4">
-            <div>
-              <label
-                htmlFor="forgotEmail"
-                className="mb-1 block text-sm font-semibold text-slate-600"
-              >
-                Registered Email Address
-              </label>
+            <div className="relative group">
               <input
                 id="forgotEmail"
                 type="email"
                 required
                 value={state.email}
                 onChange={(e) => updateState({ email: e.target.value })}
-                className="input-field"
-                placeholder="Enter your registered email"
+                onFocus={() => setFocusedInput("forgotEmail")}
+                onBlur={() => setFocusedInput(null)}
+                className="block w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-slate-300/70 rounded-xl text-slate-900 focus:outline-none focus:bg-white/95 transition-all duration-300 shadow-sm peer"
+                style={{
+                  borderColor: focusedInput === "forgotEmail" ? "#3b82f6" : "",
+                }}
               />
+              <label
+                htmlFor="forgotEmail"
+                className={`absolute left-4 transition-all duration-300 pointer-events-none px-1 ${focusedInput === "forgotEmail" || state.email ? "-top-2.5 text-xs font-bold text-blue-600 rounded-md shadow-sm bg-white" : "top-3 text-slate-500 text-sm bg-transparent shadow-none"}`}
+              >
+                Registered Email Address
+              </label>
             </div>
             <button
               type="submit"
@@ -268,22 +274,27 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
 
         {state.step === "verify" && (
           <form onSubmit={handleVerifyCode} className="space-y-4">
-            <div>
-              <label
-                htmlFor="verificationCode"
-                className="mb-1 block text-sm font-semibold text-slate-600"
-              >
-                6-Digit Verification Code
-              </label>
+            <div className="relative group">
               <input
                 id="verificationCode"
                 type="text"
                 required
                 value={state.enteredCode}
                 onChange={(e) => updateState({ enteredCode: e.target.value })}
-                className="input-field"
-                placeholder="Enter 6-digit code"
+                onFocus={() => setFocusedInput("verificationCode")}
+                onBlur={() => setFocusedInput(null)}
+                className="block w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-slate-300/70 rounded-xl text-slate-900 focus:outline-none focus:bg-white/95 transition-all duration-300 shadow-sm peer"
+                style={{
+                  borderColor:
+                    focusedInput === "verificationCode" ? "#3b82f6" : "",
+                }}
               />
+              <label
+                htmlFor="verificationCode"
+                className={`absolute left-4 transition-all duration-300 pointer-events-none px-1 ${focusedInput === "verificationCode" || state.enteredCode ? "-top-2.5 text-xs font-bold text-blue-600 rounded-md shadow-sm bg-white" : "top-3 text-slate-500 text-sm bg-transparent shadow-none"}`}
+              >
+                6-Digit Verification Code
+              </label>
             </div>
             <div className="flex justify-end">
               <button
@@ -307,13 +318,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
 
         {state.step === "reset" && (
           <form onSubmit={handleResetPassword} className="space-y-4">
-            <div>
-              <label
-                htmlFor="forgotCurrentPassword"
-                className="mb-1 block text-sm font-semibold text-slate-600"
-              >
-                Current Account Password
-              </label>
+            <div className="relative group">
               <input
                 id="forgotCurrentPassword"
                 type="password"
@@ -322,34 +327,44 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                 onChange={(e) =>
                   updateState({ currentPassword: e.target.value })
                 }
-                className="input-field"
-                placeholder="Enter current password"
+                onFocus={() => setFocusedInput("forgotCurrentPassword")}
+                onBlur={() => setFocusedInput(null)}
+                className="block w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-slate-300/70 rounded-xl text-slate-900 focus:outline-none focus:bg-white/95 transition-all duration-300 shadow-sm peer"
+                style={{
+                  borderColor:
+                    focusedInput === "forgotCurrentPassword" ? "#3b82f6" : "",
+                }}
               />
-            </div>
-            <div>
               <label
-                htmlFor="forgotNewPassword"
-                className="mb-1 block text-sm font-semibold text-slate-600"
+                htmlFor="forgotCurrentPassword"
+                className={`absolute left-4 transition-all duration-300 pointer-events-none px-1 ${focusedInput === "forgotCurrentPassword" || state.currentPassword ? "-top-2.5 text-xs font-bold text-blue-600 rounded-md shadow-sm bg-white" : "top-3 text-slate-500 text-sm bg-transparent shadow-none"}`}
               >
-                New Password
+                Current Account Password
               </label>
+            </div>
+            <div className="relative group">
               <input
                 id="forgotNewPassword"
                 type="password"
                 required
                 value={state.newPassword}
                 onChange={(e) => updateState({ newPassword: e.target.value })}
-                className="input-field"
-                placeholder="Enter new password"
+                onFocus={() => setFocusedInput("forgotNewPassword")}
+                onBlur={() => setFocusedInput(null)}
+                className="block w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-slate-300/70 rounded-xl text-slate-900 focus:outline-none focus:bg-white/95 transition-all duration-300 shadow-sm peer"
+                style={{
+                  borderColor:
+                    focusedInput === "forgotNewPassword" ? "#3b82f6" : "",
+                }}
               />
-            </div>
-            <div>
               <label
-                htmlFor="forgotConfirmPassword"
-                className="mb-1 block text-sm font-semibold text-slate-600"
+                htmlFor="forgotNewPassword"
+                className={`absolute left-4 transition-all duration-300 pointer-events-none px-1 ${focusedInput === "forgotNewPassword" || state.newPassword ? "-top-2.5 text-xs font-bold text-blue-600 rounded-md shadow-sm bg-white" : "top-3 text-slate-500 text-sm bg-transparent shadow-none"}`}
               >
-                Confirm New Password
+                New Password
               </label>
+            </div>
+            <div className="relative group">
               <input
                 id="forgotConfirmPassword"
                 type="password"
@@ -358,9 +373,20 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                 onChange={(e) =>
                   updateState({ confirmPassword: e.target.value })
                 }
-                className="input-field"
-                placeholder="Confirm new password"
+                onFocus={() => setFocusedInput("forgotConfirmPassword")}
+                onBlur={() => setFocusedInput(null)}
+                className="block w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-slate-300/70 rounded-xl text-slate-900 focus:outline-none focus:bg-white/95 transition-all duration-300 shadow-sm peer"
+                style={{
+                  borderColor:
+                    focusedInput === "forgotConfirmPassword" ? "#3b82f6" : "",
+                }}
               />
+              <label
+                htmlFor="forgotConfirmPassword"
+                className={`absolute left-4 transition-all duration-300 pointer-events-none px-1 ${focusedInput === "forgotConfirmPassword" || state.confirmPassword ? "-top-2.5 text-xs font-bold text-blue-600 rounded-md shadow-sm bg-white" : "top-3 text-slate-500 text-sm bg-transparent shadow-none"}`}
+              >
+                Confirm New Password
+              </label>
             </div>
             <button
               type="submit"
