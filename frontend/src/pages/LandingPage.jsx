@@ -189,28 +189,6 @@ export default function LandingPage() {
                     Get Started
                   </Link>
                 </div>
-
-                {/* Trust Indicators */}
-                <div className="mt-10 sm:mt-12 flex items-center gap-4 text-sm text-slate-300 font-medium">
-                  <div className="flex -space-x-2">
-                    <div className="w-8 h-8 rounded-full border-2 border-white bg-slate-200 overflow-hidden">
-                      <img
-                        src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?auto=format&fit=facearea&facepad=2&w=100&h=100&q=80"
-                        alt="User"
-                      />
-                    </div>
-                    <div className="w-8 h-8 rounded-full border-2 border-white bg-slate-200 overflow-hidden">
-                      <img
-                        src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=100&h=100&q=80"
-                        alt="User"
-                      />
-                    </div>
-                    <div className="w-8 h-8 rounded-full border-2 border-white overflow-hidden text-xs flex items-center justify-center font-bold bg-slate-800 text-white">
-                      +5k
-                    </div>
-                  </div>
-                  Trusted by modern universities
-                </div>
               </div>
 
               {/* RIGHT SIDE: Campus Illustration / Image Feature */}
