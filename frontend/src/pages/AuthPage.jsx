@@ -85,7 +85,7 @@ const getPasswordStrength = (pwd) => {
       emoji: "😠",
       label: "Weak.",
       description: "Must contain at least 6 characters",
-      colorClass: "bg-red-500",
+      colorClass: "bg-red-600",
       widthClass: "w-1/4",
     };
   }
@@ -94,7 +94,7 @@ const getPasswordStrength = (pwd) => {
       emoji: "😐",
       label: "Fair.",
       description: "Must contain at least 1 letter",
-      colorClass: "bg-orange-400",
+      colorClass: "bg-orange-500",
       widthClass: "w-2/4",
     };
   }
@@ -103,7 +103,7 @@ const getPasswordStrength = (pwd) => {
       emoji: "😕",
       label: "Good.",
       description: "Must contain special symbol",
-      colorClass: "bg-yellow-400",
+      colorClass: "bg-yellow-500",
       widthClass: "w-3/4",
     };
   }
@@ -162,20 +162,20 @@ function LoginForm({ onForgotPasswordClick = () => {} }) {
   return (
     <>
       <h2
-        className="text-center font-extrabold text-slate-900 mb-1 text-2xl sm:text-[1.85rem] tracking-tight animate-fade-in-up"
+        className="text-center font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-slate-800 via-slate-900 to-indigo-900 drop-shadow-sm mb-1 text-2xl sm:text-[1.85rem] tracking-tight animate-fade-in-up"
         style={{ animationDelay: "100ms" }}
       >
         Welcome Back
       </h2>
       <p
-        className="text-center text-sm text-slate-700 mb-5 animate-fade-in-up"
+        className="text-center text-sm text-slate-200 font-semibold drop-shadow-sm mb-5 animate-fade-in-up"
         style={{ animationDelay: "150ms" }}
       >
         Sign in to your account
       </p>
 
       {error && (
-        <div className="mb-6 flex items-center justify-center rounded-xl border border-rose-200 bg-rose-50/80 backdrop-blur-sm p-3 text-sm font-medium text-rose-600 shadow-sm animate-fade-in-up">
+        <div className="mb-6 flex items-center justify-center rounded-xl border border-red-200 bg-transparent backdrop-blur-md p-3 text-sm font-semibold text-red-500 shadow-sm animate-fade-in-up">
           {error}
         </div>
       )}
@@ -186,7 +186,7 @@ function LoginForm({ onForgotPasswordClick = () => {} }) {
           style={{ animationDelay: "200ms" }}
         >
           <div
-            className={`absolute inset-y-0 left-0 z-10 pl-4 flex items-center pointer-events-none transition-colors duration-300 ${focusedInput === "email" ? "text-blue-600" : "text-slate-500"}`}
+            className={`absolute inset-y-0 left-0 z-10 pl-4 flex items-center pointer-events-none transition-colors duration-300 ${focusedInput === "email" ? "text-blue-600" : "text-slate-400 font-medium"}`}
           >
             <Mail className="h-5 w-5" />
           </div>
@@ -208,7 +208,7 @@ function LoginForm({ onForgotPasswordClick = () => {} }) {
           <label
             htmlFor="email"
             className={`absolute left-11 transition-all duration-300 pointer-events-none px-1
-              ${focusedInput === "email" || email ? "-top-2.5 text-xs font-bold text-blue-600 rounded-md shadow-sm bg-white" : "top-3 text-slate-500 text-sm bg-transparent shadow-none"}`}
+              ${focusedInput === "email" || email ? "-top-2.5 text-xs font-bold text-blue-600 rounded-md shadow-sm bg-white" : "top-3 text-slate-400 font-medium text-sm bg-transparent shadow-none"}`}
           >
             Email Address
           </label>
@@ -219,7 +219,7 @@ function LoginForm({ onForgotPasswordClick = () => {} }) {
           style={{ animationDelay: "250ms" }}
         >
           <div
-            className={`absolute inset-y-0 left-0 z-10 pl-4 flex items-center pointer-events-none transition-colors duration-300 ${focusedInput === "password" ? "text-blue-600" : "text-slate-500"}`}
+            className={`absolute inset-y-0 left-0 z-10 pl-4 flex items-center pointer-events-none transition-colors duration-300 ${focusedInput === "password" ? "text-blue-600" : "text-slate-400 font-medium"}`}
           >
             <Lock className="h-5 w-5" />
           </div>
@@ -243,14 +243,14 @@ function LoginForm({ onForgotPasswordClick = () => {} }) {
           <label
             htmlFor="password"
             className={`absolute left-11 transition-all duration-300 pointer-events-none px-1
-              ${focusedInput === "password" || password ? "-top-2.5 text-xs font-bold text-blue-600 rounded-md shadow-sm bg-white" : "top-3 text-slate-500 text-sm bg-transparent shadow-none"}`}
+              ${focusedInput === "password" || password ? "-top-2.5 text-xs font-bold text-blue-600 rounded-md shadow-sm bg-white" : "top-3 text-slate-400 font-medium text-sm bg-transparent shadow-none"}`}
           >
             Password
           </label>
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-0 flex items-center justify-center pr-4 text-slate-400 hover:text-slate-600 transition"
+            className="absolute inset-y-0 right-0 flex items-center justify-center pr-4 text-slate-600 hover:text-slate-800 transition"
           >
             {showPassword ? (
               <EyeOff className="h-5 w-5" />
@@ -267,7 +267,7 @@ function LoginForm({ onForgotPasswordClick = () => {} }) {
           <button
             type="button"
             onClick={onForgotPasswordClick}
-            className="text-xs font-bold text-[#1E2A50] transition hover:text-[#3B4A89] hover:underline"
+            className="text-xs font-bold text-blue-200 transition drop-shadow-sm hover:text-white hover:underline"
           >
             Forgot Password?
           </button>
@@ -289,11 +289,11 @@ function LoginForm({ onForgotPasswordClick = () => {} }) {
         className="flex items-center justify-between mt-5 animate-fade-in-up"
         style={{ animationDelay: "400ms" }}
       >
-        <span className="w-1/5 border-b border-slate-300/80 md:w-1/4" />
-        <span className="text-center text-xs uppercase tracking-[0.14em] text-slate-700">
+        <span className="w-1/5 border-b border-white/30 md:w-1/4" />
+        <span className="text-center text-xs uppercase tracking-[0.14em] text-slate-200 font-semibold drop-shadow-sm">
           Or continue with
         </span>
-        <span className="w-1/5 border-b border-slate-300/80 md:w-1/4" />
+        <span className="w-1/5 border-b border-white/30 md:w-1/4" />
       </div>
 
       <div
@@ -304,14 +304,14 @@ function LoginForm({ onForgotPasswordClick = () => {} }) {
       </div>
 
       <div
-        className="mt-5 text-center text-sm pt-3 border-t border-slate-200/70 animate-fade-in-up"
+        className="mt-5 text-center text-sm pt-3 border-t border-white/20 animate-fade-in-up"
         style={{ animationDelay: "500ms" }}
       >
-        <p className="text-slate-700">
+        <p className="text-slate-200 font-semibold drop-shadow-sm">
           Don't have an account?{" "}
           <Link
             to="/register"
-            className="font-bold text-[#1E2A50] transition hover:text-[#3B4A89]"
+            className="font-bold text-blue-300 transition drop-shadow-sm hover:text-white"
           >
             Create Account
           </Link>
@@ -391,10 +391,10 @@ function RegisterForm() {
 
   return (
     <>
-      <h2 className="text-center font-extrabold text-slate-900 mb-1 text-2xl sm:text-[1.85rem] tracking-tight">
+      <h2 className="text-center font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-slate-800 via-slate-900 to-indigo-900 drop-shadow-sm mb-1 text-2xl sm:text-[1.85rem] tracking-tight">
         Create Account
       </h2>
-      <p className="text-center text-sm text-slate-700 mb-4">
+      <p className="text-center text-sm text-slate-200 font-semibold drop-shadow-sm mb-4">
         Join UniReserveHub today.
       </p>
 
@@ -410,7 +410,7 @@ function RegisterForm() {
       </div>
 
       {error && (
-        <div className="mb-4 flex items-center justify-center rounded-xl border border-rose-200 bg-rose-50/80 p-2.5 text-sm font-medium text-rose-600 shadow-sm">
+        <div className="mb-4 flex items-center justify-center rounded-xl border border-red-200 bg-transparent p-2.5 text-sm font-semibold text-red-500 shadow-sm backdrop-blur-md">
           {error}
         </div>
       )}
@@ -425,7 +425,7 @@ function RegisterForm() {
       <form onSubmit={handleRegister} className="space-y-3.5">
         <div className="relative group">
           <div
-            className={`absolute inset-y-0 left-0 z-10 pl-4 flex items-center pointer-events-none transition-colors duration-300 ${focusedInput === "name" ? activeTheme.linkText : "text-slate-500"}`}
+            className={`absolute inset-y-0 left-0 z-10 pl-4 flex items-center pointer-events-none transition-colors duration-300 ${focusedInput === "name" ? activeTheme.linkText : "text-slate-400 font-medium"}`}
           >
             <User className="h-5 w-5" />
           </div>
@@ -442,7 +442,7 @@ function RegisterForm() {
           />
           <label
             htmlFor="name"
-            className={`absolute left-11 transition-all duration-300 pointer-events-none px-1 ${focusedInput === "name" || name ? `-top-2.5 text-xs font-bold ${activeTheme.linkText} rounded-md shadow-sm bg-white` : "top-3 text-slate-500 text-sm bg-transparent shadow-none"}`}
+            className={`absolute left-11 transition-all duration-300 pointer-events-none px-1 ${focusedInput === "name" || name ? `-top-2.5 text-xs font-bold ${activeTheme.linkText} rounded-md shadow-sm bg-white` : "top-3 text-slate-400 font-medium text-sm bg-transparent shadow-none"}`}
           >
             Full Name
           </label>
@@ -450,7 +450,7 @@ function RegisterForm() {
 
         <div className="relative group">
           <div
-            className={`absolute inset-y-0 left-0 z-10 pl-4 flex items-center pointer-events-none transition-colors duration-300 ${focusedInput === "email" ? activeTheme.linkText : "text-slate-500"}`}
+            className={`absolute inset-y-0 left-0 z-10 pl-4 flex items-center pointer-events-none transition-colors duration-300 ${focusedInput === "email" ? activeTheme.linkText : "text-slate-400 font-medium"}`}
           >
             <Mail className="h-5 w-5" />
           </div>
@@ -465,7 +465,7 @@ function RegisterForm() {
             }}
             onFocus={() => setFocusedInput("email")}
             onBlur={() => setFocusedInput(null)}
-            className={`block w-full pl-11 pr-4 py-3 bg-white/80 backdrop-blur-sm border-2 rounded-xl text-slate-900 focus:outline-none focus:bg-white/95 transition-all duration-300 shadow-sm peer ${emailValidationError ? "border-rose-300 focus:border-rose-500" : "border-slate-300/70"}`}
+            className={`block w-full pl-11 pr-4 py-3 bg-white/80 backdrop-blur-sm border-2 rounded-xl text-slate-900 focus:outline-none focus:bg-white/95 transition-all duration-300 shadow-sm peer ${emailValidationError ? "border-red-400 focus:border-red-500" : "border-slate-300/70"}`}
             style={{
               borderColor:
                 !emailValidationError && focusedInput === "email"
@@ -475,7 +475,7 @@ function RegisterForm() {
           />
           <label
             htmlFor="email"
-            className={`absolute left-11 transition-all duration-300 pointer-events-none px-1 ${focusedInput === "email" || email ? `-top-2.5 text-xs font-bold ${activeTheme.linkText} rounded-md shadow-sm bg-white` : "top-3 text-slate-500 text-sm bg-transparent shadow-none"}`}
+            className={`absolute left-11 transition-all duration-300 pointer-events-none px-1 ${focusedInput === "email" || email ? `-top-2.5 text-xs font-bold ${activeTheme.linkText} rounded-md shadow-sm bg-white` : "top-3 text-slate-400 font-medium text-sm bg-transparent shadow-none"}`}
           >
             {registerRole === "ADMIN"
               ? "Admin Email"
@@ -484,7 +484,7 @@ function RegisterForm() {
                 : "Email Address"}
           </label>
           {emailValidationError && (
-            <p className="mt-1 text-xs font-medium text-rose-600 px-2">
+            <p className="mt-1.5 text-[12px] font-medium text-red-700 drop-shadow-md px-2">
               {emailValidationError}
             </p>
           )}
@@ -493,7 +493,7 @@ function RegisterForm() {
         <div>
           <div className="relative group">
             <div
-              className={`absolute inset-y-0 left-0 z-10 pl-4 flex items-center pointer-events-none transition-colors duration-300 ${focusedInput === "password" ? activeTheme.linkText : "text-slate-500"}`}
+              className={`absolute inset-y-0 left-0 z-10 pl-4 flex items-center pointer-events-none transition-colors duration-300 ${focusedInput === "password" ? activeTheme.linkText : "text-slate-400 font-medium"}`}
             >
               <Lock className="h-5 w-5" />
             </div>
@@ -515,14 +515,14 @@ function RegisterForm() {
             />
             <label
               htmlFor="password"
-              className={`absolute left-11 transition-all duration-300 pointer-events-none px-1 ${focusedInput === "password" || password ? `-top-2.5 text-xs font-bold ${areRegisterPasswordsMatching ? "text-emerald-500" : activeTheme.linkText} rounded-md shadow-sm bg-white` : "top-3 text-slate-500 text-sm bg-transparent shadow-none"}`}
+              className={`absolute left-11 transition-all duration-300 pointer-events-none px-1 ${focusedInput === "password" || password ? `-top-2.5 text-xs font-bold ${areRegisterPasswordsMatching ? "text-emerald-500" : activeTheme.linkText} rounded-md shadow-sm bg-white` : "top-3 text-slate-400 font-medium text-sm bg-transparent shadow-none"}`}
             >
               Password
             </label>
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 flex items-center justify-center pr-4 text-slate-400 hover:text-slate-600 transition"
+              className="absolute inset-y-0 right-0 flex items-center justify-center pr-4 text-slate-600 hover:text-slate-800 transition"
             >
               {showPassword ? (
                 <EyeOff className="h-5 w-5" />
@@ -540,8 +540,8 @@ function RegisterForm() {
                 <span className="text-[13px]">
                   {getPasswordStrength(password)?.emoji}
                 </span>
-                <p className="text-[11.5px] text-slate-500 leading-none">
-                  <span className="font-semibold text-slate-700">
+                <p className="text-[11.5px] text-slate-800 leading-none font-medium">
+                  <span className="font-bold text-slate-900">
                     {getPasswordStrength(password)?.label}
                   </span>{" "}
                   {getPasswordStrength(password)?.description}
@@ -553,7 +553,7 @@ function RegisterForm() {
 
         <div className="relative group">
           <div
-            className={`absolute inset-y-0 left-0 z-10 pl-4 flex items-center pointer-events-none transition-colors duration-300 ${focusedInput === "confirm" ? activeTheme.linkText : "text-slate-500"}`}
+            className={`absolute inset-y-0 left-0 z-10 pl-4 flex items-center pointer-events-none transition-colors duration-300 ${focusedInput === "confirm" ? activeTheme.linkText : "text-slate-400 font-medium"}`}
           >
             <Lock className="h-5 w-5" />
           </div>
@@ -575,14 +575,14 @@ function RegisterForm() {
           />
           <label
             htmlFor="confirmPassword"
-            className={`absolute left-11 transition-all duration-300 pointer-events-none px-1 ${focusedInput === "confirm" || confirmPassword ? `-top-2.5 text-xs font-bold ${areRegisterPasswordsMatching ? "text-emerald-500" : activeTheme.linkText} rounded-md shadow-sm bg-white` : "top-3 text-slate-500 text-sm bg-transparent shadow-none"}`}
+            className={`absolute left-11 transition-all duration-300 pointer-events-none px-1 ${focusedInput === "confirm" || confirmPassword ? `-top-2.5 text-xs font-bold ${areRegisterPasswordsMatching ? "text-emerald-500" : activeTheme.linkText} rounded-md shadow-sm bg-white` : "top-3 text-slate-400 font-medium text-sm bg-transparent shadow-none"}`}
           >
             Confirm Password
           </label>
           <button
             type="button"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            className="absolute inset-y-0 right-0 flex items-center justify-center pr-4 text-slate-400 hover:text-slate-600 transition"
+            className="absolute inset-y-0 right-0 flex items-center justify-center pr-4 text-slate-600 hover:text-slate-800 transition"
           >
             {showConfirmPassword ? (
               <EyeOff className="h-5 w-5" />
@@ -605,22 +605,22 @@ function RegisterForm() {
       {registerRole === "USER" && (
         <div className="mt-3">
           <div className="flex items-center justify-between mb-3">
-            <span className="w-1/5 border-b border-slate-300/80 md:w-1/4" />
-            <span className="text-center text-xs uppercase tracking-[0.14em] text-slate-700">
+            <span className="w-1/5 border-b border-white/30 md:w-1/4" />
+            <span className="text-center text-xs uppercase tracking-[0.14em] text-slate-200 font-semibold drop-shadow-sm">
               Or continue with
             </span>
-            <span className="w-1/5 border-b border-slate-300/80 md:w-1/4" />
+            <span className="w-1/5 border-b border-white/30 md:w-1/4" />
           </div>
           <GoogleAuthButton />
         </div>
       )}
 
-      <div className="mt-4 text-center text-sm pt-3 border-t border-slate-200/70">
-        <p className="text-slate-700">
+      <div className="mt-4 text-center text-sm pt-3 border-t border-white/20">
+        <p className="text-slate-200 font-semibold drop-shadow-sm">
           Already have an account?{" "}
           <Link
             to="/login"
-            className={`font-bold transition hover:text-[#3B4A89] ${activeTheme.linkText}`}
+            className="font-bold text-blue-300 transition drop-shadow-sm hover:text-white"
           >
             Sign In
           </Link>
