@@ -109,7 +109,7 @@ export default function LandingPage() {
       <div className="relative z-10">
         {/* Navbar section */}
         <nav className="fixed top-0 w-full z-50 bg-slate-950/60 backdrop-blur-lg border-b border-white/10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="w-full px-4 sm:px-8 lg:px-12">
             <div className="flex justify-between items-center h-[72px]">
               <div className="flex items-center gap-2.5">
                 <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-2.5 rounded-xl shadow-md shadow-blue-500/20">
