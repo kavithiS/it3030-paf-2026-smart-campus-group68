@@ -4,6 +4,7 @@ import AuthPage from "./pages/AuthPage";
 import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import TechnicianDashboard from "./pages/TechnicianDashboard";
+import TicketDetails from "./pages/TicketDetails";
 import OAuth2RedirectHandler from "./pages/OAuth2RedirectHandler";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -45,6 +46,11 @@ function App() {
             path="/dashboard"
             element={<Navigate to="/user-dashboard" replace />}
           />
+        </Route>
+
+        {/* Ticket Routes (accessible by all authenticated users) */}
+        <Route element={<ProtectedRoute allowedRoles={["USER", "ADMIN", "TECHNICIAN"]} />}>
+          <Route path="/ticket/:id" element={<TicketDetails />} />
         </Route>
 
         {/* Role Specific Protect Routes */}

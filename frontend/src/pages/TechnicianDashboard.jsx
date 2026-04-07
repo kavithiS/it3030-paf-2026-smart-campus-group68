@@ -2,6 +2,7 @@ import React from "react";
 import { CalendarCheck2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import DashboardLayout from "../components/DashboardLayout";
+import TicketList from "../components/TicketList";
 
 const TechnicianDashboard = () => {
   const { user, logout } = useAuth();
@@ -35,19 +36,16 @@ const TechnicianDashboard = () => {
           Welcome Technician, {user.name}
         </h2>
         <p className="mt-2 text-sm text-cyan-50/95">
-          You are now in the technician workspace.
+          See your assigned maintenance incidents and update them to resolved.
         </p>
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-          Main Responsibilities
-        </h3>
-        <ul className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
-          <li className="font-medium text-cyan-700 dark:text-cyan-300">
-            🎯 Handle Tickets
-          </li>
-        </ul>
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Assigned Tickets</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Open a ticket to resolve and comment</p>
+        </div>
+        <TicketList />
       </section>
     </DashboardLayout>
   );

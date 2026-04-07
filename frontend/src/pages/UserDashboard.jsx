@@ -1,10 +1,15 @@
-import React from "react";
-import { BellRing, CalendarCheck2 } from "lucide-react";
+import React, { useState } from "react";
+import { Plus, CalendarCheck2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import DashboardLayout from "../components/DashboardLayout";
+import CreateTicketModal from "../components/CreateTicketModal";
+import TicketList from "../components/TicketList";
 
 const UserDashboard = () => {
   const { user, logout } = useAuth();
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
   if (!user) return null;
 
   const sidebarItems = [
@@ -15,6 +20,10 @@ const UserDashboard = () => {
       route: "/user-dashboard",
     },
   ];
+
+  const handleTicketCreated = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
 
   return (
     <DashboardLayout
@@ -35,19 +44,30 @@ const UserDashboard = () => {
           Welcome User, {user.name}
         </h2>
         <p className="mt-2 text-sm text-blue-50/95">
-          Manage your bookings, updates, and requests from one place.
+          Manage your maintenance tickets and requests from one place.
         </p>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-1">
-        <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <BellRing className="h-6 w-6 text-blue-600" />
-          <h3 className="mt-3 text-lg font-bold">Notifications</h3>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-            View alerts for service updates and approvals.
-          </p>
-        </article>
+      <div className="flex justify-between items-center">
+        <h3 className="text-xl font-bold">My Tickets</h3>
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+        >
+          <Plus className="h-5 w-5" />
+          Create Ticket
+        </button>
+      </div>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <TicketList key={refreshTrigger} />
       </section>
+
+      <CreateTicketModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={handleTicketCreated}
+      />
     </DashboardLayout>
   );
 };
