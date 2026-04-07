@@ -72,6 +72,50 @@ const validateEmailByRole = (role, email) => {
   return "";
 };
 
+const getPasswordStrength = (pwd) => {
+  if (!pwd) return null;
+
+  const hasMinLength = pwd.length >= 8;
+  const hasLetter = /[a-zA-Z]/.test(pwd);
+  const hasNumber = /\d/.test(pwd);
+  const hasSpecial = /[^a-zA-Z0-9]/.test(pwd);
+
+  if (!hasMinLength) {
+    return {
+      emoji: "😠",
+      label: "Weak.",
+      description: "Must contain at least 6 characters",
+      colorClass: "bg-red-500",
+      widthClass: "w-1/4",
+    };
+  }
+  if (!hasLetter) {
+    return {
+      emoji: "😐",
+      label: "Fair.",
+      description: "Must contain at least 1 letter",
+      colorClass: "bg-orange-400",
+      widthClass: "w-2/4",
+    };
+  }
+  if (!hasSpecial) {
+    return {
+      emoji: "😕",
+      label: "Good.",
+      description: "Must contain special symbol",
+      colorClass: "bg-yellow-400",
+      widthClass: "w-3/4",
+    };
+  }
+  return {
+    emoji: "😎",
+    label: "Strong!",
+    description: "You have a secure password",
+    colorClass: "bg-green-500",
+    widthClass: "w-full",
+  };
+};
+
 function LoginForm({ onForgotPasswordClick = () => {} }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -446,45 +490,65 @@ function RegisterForm() {
           )}
         </div>
 
-        <div className="relative group">
-          <div
-            className={`absolute inset-y-0 left-0 z-10 pl-4 flex items-center pointer-events-none transition-colors duration-300 ${focusedInput === "password" ? activeTheme.linkText : "text-slate-500"}`}
-          >
-            <Lock className="h-5 w-5" />
+        <div>
+          <div className="relative group">
+            <div
+              className={`absolute inset-y-0 left-0 z-10 pl-4 flex items-center pointer-events-none transition-colors duration-300 ${focusedInput === "password" ? activeTheme.linkText : "text-slate-500"}`}
+            >
+              <Lock className="h-5 w-5" />
+            </div>
+            <input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onFocus={() => setFocusedInput("password")}
+              onBlur={() => setFocusedInput(null)}
+              className={`block w-full pl-11 pr-12 py-3 bg-white/80 backdrop-blur-sm border-2 border-slate-300/70 rounded-xl text-slate-900 focus:outline-none focus:bg-white/95 transition-all duration-300 shadow-sm peer ${areRegisterPasswordsMatching ? "border-emerald-400 focus:border-emerald-500 shadow-emerald-500/20 shadow-md transform -translate-y-0.5" : ""}`}
+              style={{
+                borderColor:
+                  !areRegisterPasswordsMatching && focusedInput === "password"
+                    ? "#6366f1"
+                    : "",
+              }}
+            />
+            <label
+              htmlFor="password"
+              className={`absolute left-11 transition-all duration-300 pointer-events-none px-1 ${focusedInput === "password" || password ? `-top-2.5 text-xs font-bold ${areRegisterPasswordsMatching ? "text-emerald-500" : activeTheme.linkText} rounded-md shadow-sm bg-white` : "top-3 text-slate-500 text-sm bg-transparent shadow-none"}`}
+            >
+              Password
+            </label>
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-0 flex items-center justify-center pr-4 text-slate-400 hover:text-slate-600 transition"
+            >
+              {showPassword ? (
+                <EyeOff className="h-5 w-5" />
+              ) : (
+                <Eye className="h-5 w-5" />
+              )}
+            </button>
           </div>
-          <input
-            id="password"
-            type={showPassword ? "text" : "password"}
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onFocus={() => setFocusedInput("password")}
-            onBlur={() => setFocusedInput(null)}
-            className={`block w-full pl-11 pr-12 py-3 bg-white/80 backdrop-blur-sm border-2 border-slate-300/70 rounded-xl text-slate-900 focus:outline-none focus:bg-white/95 transition-all duration-300 shadow-sm peer ${areRegisterPasswordsMatching ? "border-emerald-400 focus:border-emerald-500 shadow-emerald-500/20 shadow-md transform -translate-y-0.5" : ""}`}
-            style={{
-              borderColor:
-                !areRegisterPasswordsMatching && focusedInput === "password"
-                  ? "#6366f1"
-                  : "",
-            }}
-          />
-          <label
-            htmlFor="password"
-            className={`absolute left-11 transition-all duration-300 pointer-events-none px-1 ${focusedInput === "password" || password ? `-top-2.5 text-xs font-bold ${areRegisterPasswordsMatching ? "text-emerald-500" : activeTheme.linkText} rounded-md shadow-sm bg-white` : "top-3 text-slate-500 text-sm bg-transparent shadow-none"}`}
-          >
-            Password
-          </label>
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-0 flex items-center justify-center pr-4 text-slate-400 hover:text-slate-600 transition"
-          >
-            {showPassword ? (
-              <EyeOff className="h-5 w-5" />
-            ) : (
-              <Eye className="h-5 w-5" />
-            )}
-          </button>
+          {password && (
+            <div className="mt-1 transition-all duration-300 px-1">
+              <div
+                className={`h-[3px] transition-all duration-500 rounded-full ${getPasswordStrength(password)?.colorClass} ${getPasswordStrength(password)?.widthClass}`}
+              ></div>
+              <div className="flex items-center gap-1.5 mt-1.5 pl-0.5">
+                <span className="text-[13px]">
+                  {getPasswordStrength(password)?.emoji}
+                </span>
+                <p className="text-[11.5px] text-slate-500 leading-none">
+                  <span className="font-semibold text-slate-700">
+                    {getPasswordStrength(password)?.label}
+                  </span>{" "}
+                  {getPasswordStrength(password)?.description}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="relative group">
@@ -662,7 +726,6 @@ const AuthPage = () => {
                 </div>
               )}
             </div>
-
           </div>
         </div>
       </div>
