@@ -2,6 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import bg2Image from "../assets/bg2.png";
 import lpImage from "../assets/lpImage.jpeg";
+import colomboImg from "../assets/landing_pg_trust_indicators/colombo.jpg";
+import curtinImg from "../assets/landing_pg_trust_indicators/curtin.jpg";
+import moraImg from "../assets/landing_pg_trust_indicators/mora.jpg";
 import {
   CalendarDays,
   Wrench,
@@ -45,8 +48,9 @@ const FadeInSection = ({ children, delay = 0 }) => {
   return (
     <div
       ref={ref}
-      className={`transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-        }`}
+      className={`transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+      }`}
       style={{ transitionDelay: `${delay}ms` }}
     >
       {children}
@@ -105,7 +109,7 @@ export default function LandingPage() {
       <div className="relative z-10">
         {/* Navbar section */}
         <nav className="fixed top-0 w-full z-50 bg-slate-950/60 backdrop-blur-lg border-b border-white/10">
-          <div className="w-full px-6 sm:px-8 lg:px-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-[72px]">
               <div className="flex items-center gap-2.5">
                 <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-2.5 rounded-xl shadow-md shadow-blue-500/20">
@@ -121,13 +125,13 @@ export default function LandingPage() {
               <div className="hidden sm:flex gap-3">
                 <Link
                   to="/login"
-                  className="inline-flex items-center justify-center rounded-full bg-[#1E2A50]/90 px-6 py-2.5 text-sm font-semibold text-white shadow-sm border border-[#3B4A89] transition-all hover:bg-[#3B4A89] hover:border-indigo-400"
+                  className="inline-flex items-center justify-center rounded-full bg-white/10 px-6 py-2.5 text-sm font-semibold text-white shadow-sm border border-white/20 transition-all hover:bg-white/20"
                 >
                   Welcome Back
                 </Link>
                 <Link
                   to="/register"
-                  className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-md shadow-indigo-500/25 transition-all hover:from-blue-500 hover:to-indigo-500 hover:shadow-lg hover:shadow-indigo-500/40 hover:-translate-y-0.5"
+                  className="inline-flex items-center justify-center rounded-full bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-500/20 transition-all hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5"
                 >
                   Get Started
                 </Link>
@@ -137,7 +141,8 @@ export default function LandingPage() {
         </nav>
 
         {/* Hero Section */}
-        <div className="relative min-h-screen flex items-center pt-[72px] overflow-hidden">
+        {/* Reduced bottom padding to prevent feeling cut off visually, min-h applied carefully */}
+        <div className="relative pt-[120px] pb-16 lg:pt-[140px] lg:pb-24 min-h-[92vh] flex items-center overflow-hidden">
           {/* Abstract Background Shapes */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
             <div className="absolute -top-[20%] -right-[10%] w-[60%] h-[60%] rounded-full bg-blue-400/10 dark:bg-blue-600/15 blur-[120px]" />
@@ -148,10 +153,11 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
               {/* LEFT SIDE: Text and CTAs */}
               <div
-                className={`col-span-1 lg:col-span-6 order-2 lg:order-1 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] ${isLoaded
+                className={`col-span-1 lg:col-span-6 order-2 lg:order-1 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                  isLoaded
                     ? "opacity-100 translate-y-0"
                     : "opacity-0 translate-y-8"
-                  }`}
+                }`}
               >
                 <h1 className="text-[2.75rem] leading-[1.1] sm:text-5xl lg:text-6xl xl:text-[4rem] font-extrabold tracking-tight mb-5">
                   Simplifying{" "}
@@ -174,26 +180,58 @@ export default function LandingPage() {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link
                     to="/login"
-                    className="group inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 text-base font-bold shadow-lg shadow-indigo-600/30 transition-all duration-300 hover:from-blue-500 hover:to-indigo-500 hover:shadow-xl hover:shadow-indigo-600/40 hover:-translate-y-1 active:scale-[0.98]"
+                    className="group inline-flex items-center justify-center rounded-full bg-blue-600 text-white px-8 py-4 text-base font-bold shadow-lg shadow-blue-600/30 transition-all duration-300 hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/40 hover:-translate-y-1 active:scale-[0.98]"
                   >
                     Welcome Back
                     <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
                   </Link>
                   <Link
                     to="/register"
-                    className="inline-flex items-center justify-center rounded-full bg-[#1E2A50]/90 text-white px-8 py-4 text-base font-bold border border-[#3B4A89] shadow-md transition-all duration-300 hover:bg-[#3B4A89] hover:border-indigo-400 hover:-translate-y-1 hover:shadow-lg active:scale-[0.98]"
+                    className="inline-flex items-center justify-center rounded-full bg-white/10 text-white px-8 py-4 text-base font-bold border border-white/20 shadow-sm transition-all duration-300 hover:bg-white/20 hover:-translate-y-1 hover:shadow-md active:scale-[0.98]"
                   >
                     Get Started
                   </Link>
+                </div>
+
+                {/* Trust Indicators */}
+                <div className="mt-10 sm:mt-12 flex items-center gap-4 text-sm text-slate-300 font-medium">
+                  <div className="flex -space-x-2">
+                    <div className="w-8 h-8 rounded-full border-2 border-white bg-white overflow-hidden">
+                      <img
+                        src={colomboImg}
+                        alt="University of Colombo"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="w-8 h-8 rounded-full border-2 border-white bg-white overflow-hidden">
+                      <img
+                        src={curtinImg}
+                        alt="Curtin University"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="w-8 h-8 rounded-full border-2 border-white bg-white overflow-hidden">
+                      <img
+                        src={moraImg}
+                        alt="University of Moratuwa"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="w-8 h-8 rounded-full border-2 border-white overflow-hidden text-xs flex items-center justify-center font-bold bg-slate-800 text-white">
+                      +2k
+                    </div>
+                  </div>
+                  Trusted by modern universities
                 </div>
               </div>
 
               {/* RIGHT SIDE: Campus Illustration / Image Feature */}
               <div
-                className={`col-span-1 lg:col-span-6 order-1 lg:order-2 w-full transition-all duration-1000 delay-200 ease-[cubic-bezier(0.16,1,0.3,1)] ${isLoaded
+                className={`col-span-1 lg:col-span-6 order-1 lg:order-2 w-full transition-all duration-1000 delay-200 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                  isLoaded
                     ? "opacity-100 translate-x-0"
                     : "opacity-0 translate-x-12"
-                  }`}
+                }`}
               >
                 <div className="relative w-full max-w-lg mx-auto lg:max-w-none ml-auto">
                   {/* Floating Image Wrapper */}
@@ -216,7 +254,7 @@ export default function LandingPage() {
                     </div>
                     <div>
                       <div className="text-xl font-extrabold text-slate-900 dark:text-white leading-none tracking-tight">
-                        500+
+                        2,000+
                       </div>
                       <div className="text-xs text-blue-700/80 dark:text-blue-200/90 font-semibold mt-1 uppercase tracking-[0.08em]">
                         Bookings managed
