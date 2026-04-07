@@ -448,41 +448,43 @@ function RegisterForm() {
           </label>
         </div>
 
-        <div className="relative group">
-          <div
-            className={`absolute inset-y-0 left-0 z-10 pl-4 flex items-center pointer-events-none transition-colors duration-300 ${focusedInput === "email" ? activeTheme.linkText : "text-slate-400 font-medium"}`}
-          >
-            <Mail className="h-5 w-5" />
+        <div>
+          <div className="relative group">
+            <div
+              className={`absolute inset-y-0 left-0 z-10 pl-4 flex items-center pointer-events-none transition-colors duration-300 ${focusedInput === "email" ? activeTheme.linkText : "text-slate-400 font-medium"}`}
+            >
+              <Mail className="h-5 w-5" />
+            </div>
+            <input
+              id="email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setError(null);
+              }}
+              onFocus={() => setFocusedInput("email")}
+              onBlur={() => setFocusedInput(null)}
+              className={`block w-full pl-11 pr-4 py-3 bg-white/80 backdrop-blur-sm border-2 rounded-xl text-slate-900 focus:outline-none focus:bg-white/95 transition-all duration-300 shadow-sm peer ${emailValidationError ? "border-red-400 focus:border-red-500" : "border-slate-300/70"}`}
+              style={{
+                borderColor:
+                  !emailValidationError && focusedInput === "email"
+                    ? "#6366f1"
+                    : "",
+              }}
+            />
+            <label
+              htmlFor="email"
+              className={`absolute left-11 transition-all duration-300 pointer-events-none px-1 ${focusedInput === "email" || email ? `-top-2.5 text-xs font-bold ${activeTheme.linkText} rounded-md shadow-sm bg-white` : "top-3 text-slate-400 font-medium text-sm bg-transparent shadow-none"}`}
+            >
+              {registerRole === "ADMIN"
+                ? "Admin Email"
+                : registerRole === "TECHNICIAN"
+                  ? "Technician Email"
+                  : "Email Address"}
+            </label>
           </div>
-          <input
-            id="email"
-            type="email"
-            required
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              setError(null);
-            }}
-            onFocus={() => setFocusedInput("email")}
-            onBlur={() => setFocusedInput(null)}
-            className={`block w-full pl-11 pr-4 py-3 bg-white/80 backdrop-blur-sm border-2 rounded-xl text-slate-900 focus:outline-none focus:bg-white/95 transition-all duration-300 shadow-sm peer ${emailValidationError ? "border-red-400 focus:border-red-500" : "border-slate-300/70"}`}
-            style={{
-              borderColor:
-                !emailValidationError && focusedInput === "email"
-                  ? "#6366f1"
-                  : "",
-            }}
-          />
-          <label
-            htmlFor="email"
-            className={`absolute left-11 transition-all duration-300 pointer-events-none px-1 ${focusedInput === "email" || email ? `-top-2.5 text-xs font-bold ${activeTheme.linkText} rounded-md shadow-sm bg-white` : "top-3 text-slate-400 font-medium text-sm bg-transparent shadow-none"}`}
-          >
-            {registerRole === "ADMIN"
-              ? "Admin Email"
-              : registerRole === "TECHNICIAN"
-                ? "Technician Email"
-                : "Email Address"}
-          </label>
           {emailValidationError && (
             <p className="mt-1.5 text-[12px] font-medium text-red-700 drop-shadow-md px-2">
               {emailValidationError}
