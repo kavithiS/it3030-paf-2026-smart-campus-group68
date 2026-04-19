@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,17 +20,33 @@ public class BookingController {
     @Autowired
     private BookingService bookingService;
 
-    private String getCurrentUserId(String userIdHeader) {
-        return userIdHeader != null && !userIdHeader.isEmpty() ? userIdHeader : "admin123";
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Booking>> getAllBookings(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String resourceId,
+            @RequestParam(required = false) String from,
+            @RequestParam(required = false) String to) {
+
+        boolean hasFilter = status != null || resourceId != null || from != null || to != null;
+        List<Booking> bookings = hasFilter
+                ? bookingService.getFilteredBookings(status, resourceId, from, to)
+                : bookingService.getAllBookings();
+        return ResponseEntity.ok(bookings);
     }
 
-    @GetMapping
-    public ResponseEntity<List<Booking>> getAllBookings() {
-        return ResponseEntity.ok(bookingService.getAllBookings());
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getBookingById(@PathVariable String id) {
+        try {
+            return ResponseEntity.ok(bookingService.getBookingById(id));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/user")
-    public ResponseEntity<List<Booking>> getUserBookings(@RequestHeader(value="X-User-Id", required=false, defaultValue="user1") String userId) {
+    public ResponseEntity<List<Booking>> getUserBookings(
+            @RequestHeader(value = "X-User-Id", required = false) String userId) {
         return ResponseEntity.ok(bookingService.getUserBookings(userId));
     }
 
@@ -46,9 +63,13 @@ public class BookingController {
     }
 
     @PutMapping("/{id}/review")
-    public ResponseEntity<?> reviewBooking(@PathVariable String id, @RequestBody AdminReviewDto dto) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> reviewBooking(
+            @PathVariable String id,
+            @RequestHeader(value = "X-User-Id", required = false) String adminUserId,
+            @RequestBody AdminReviewDto dto) {
         try {
-            Booking booking = bookingService.reviewBooking(id, dto);
+            Booking booking = bookingService.reviewBooking(id, adminUserId, dto);
             return ResponseEntity.ok(booking);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -56,7 +77,9 @@ public class BookingController {
     }
 
     @PutMapping("/{id}/cancel")
-    public ResponseEntity<?> cancelBooking(@PathVariable String id, @RequestHeader(value="X-User-Id", required=false, defaultValue="user1") String userId) {
+    public ResponseEntity<?> cancelBooking(
+            @PathVariable String id,
+            @RequestHeader(value = "X-User-Id", required = false) String userId) {
         try {
             Booking booking = bookingService.cancelBooking(id, userId);
             return ResponseEntity.ok(booking);

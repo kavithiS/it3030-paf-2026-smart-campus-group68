@@ -8,8 +8,12 @@ import com.sliit.paf.model.Resource;
 import com.sliit.paf.repository.BookingRepository;
 import com.sliit.paf.repository.ResourceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,12 +26,39 @@ public class BookingService {
     @Autowired
     private ResourceRepository resourceRepository;
 
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
     public List<Booking> getAllBookings() {
         return bookingRepository.findAll();
     }
 
     public List<Booking> getUserBookings(String userId) {
         return bookingRepository.findByUserId(userId);
+    }
+
+    public Booking getBookingById(String bookingId) {
+        return bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+    }
+
+    public List<Booking> getFilteredBookings(String status, String resourceId, String from, String to) {
+        Query query = new Query();
+
+        if (status != null && !status.isBlank()) {
+            query.addCriteria(Criteria.where("status").is(BookingStatus.valueOf(status.toUpperCase())));
+        }
+        if (resourceId != null && !resourceId.isBlank()) {
+            query.addCriteria(Criteria.where("resource.id").is(resourceId));
+        }
+        if (from != null && !from.isBlank()) {
+            query.addCriteria(Criteria.where("startTime").gte(LocalDateTime.parse(from)));
+        }
+        if (to != null && !to.isBlank()) {
+            query.addCriteria(Criteria.where("endTime").lte(LocalDateTime.parse(to)));
+        }
+
+        return mongoTemplate.find(query, Booking.class);
     }
 
     public Booking createBooking(BookingRequestDto dto) {
@@ -42,7 +73,6 @@ public class BookingService {
             throw new IllegalArgumentException("Resource is not available for booking");
         }
 
-        // Conflict checking logic
         List<BookingStatus> excludedStatuses = Arrays.asList(BookingStatus.REJECTED, BookingStatus.CANCELLED);
         List<Booking> conflicts = bookingRepository.findByResource_IdAndStatusNotInAndStartTimeLessThanAndEndTimeGreaterThan(
                 resource.getId(), excludedStatuses, dto.getEndTime(), dto.getStartTime());
@@ -59,12 +89,13 @@ public class BookingService {
                 .purpose(dto.getPurpose())
                 .expectedAttendees(dto.getExpectedAttendees())
                 .status(BookingStatus.PENDING)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         return bookingRepository.save(booking);
     }
 
-    public Booking reviewBooking(String bookingId, AdminReviewDto dto) {
+    public Booking reviewBooking(String bookingId, String adminUserId, AdminReviewDto dto) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
 
@@ -72,13 +103,10 @@ public class BookingService {
             throw new IllegalArgumentException("Only pending bookings can be reviewed");
         }
 
-        if (dto.isApproved()) {
-            booking.setStatus(BookingStatus.APPROVED);
-        } else {
-            booking.setStatus(BookingStatus.REJECTED);
-        }
-
+        booking.setStatus(dto.isApproved() ? BookingStatus.APPROVED : BookingStatus.REJECTED);
         booking.setAdminReason(dto.getReason());
+        booking.setReviewedAt(LocalDateTime.now());
+        booking.setReviewedBy(adminUserId);
 
         return bookingRepository.save(booking);
     }
