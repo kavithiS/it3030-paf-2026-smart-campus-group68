@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import ResourceList from '../components/ResourceList';
 import BookingList from '../components/BookingList';
 import BookingForm from '../components/BookingForm';
 import { CalendarRange, Activity } from 'lucide-react';
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const [selectedResource, setSelectedResource] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,8 +15,8 @@ export default function Dashboard() {
 
   const fetchBookings = useCallback(async () => {
     try {
-      const res = await axios.get('/api/bookings/user', {
-        headers: { 'X-User-Id': 'user1' }
+      const res = await api.get('/bookings/user', {
+        headers: { 'X-User-Id': user?.id }
       });
       setBookings(res.data);
     } catch (err) {
@@ -22,7 +24,7 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     fetchBookings();
@@ -31,8 +33,8 @@ export default function Dashboard() {
   const handleCancel = async (bookingId) => {
     if (window.confirm("Are you sure you want to cancel this booking request?")) {
       try {
-        await axios.put(`/api/bookings/${bookingId}/cancel`, {}, {
-          headers: { 'X-User-Id': 'user1' }
+        await api.put(`/bookings/${bookingId}/cancel`, {}, {
+          headers: { 'X-User-Id': user?.id }
         });
         setRefreshTrigger(prev => prev + 1);
       } catch (err) {

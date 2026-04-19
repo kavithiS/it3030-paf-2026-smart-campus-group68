@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import axios from 'axios';
+import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { X, Calendar as CalendarIcon, Clock, Users, FileText } from 'lucide-react';
 
 export default function BookingForm({ resource, onClose, onSuccess }) {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     date: '',
     startTime: '',
@@ -25,15 +27,15 @@ export default function BookingForm({ resource, onClose, onSuccess }) {
     try {
       const payload = {
         resourceId: resource.id,
-        userId: 'user1',
+        userId: user?.id,
         startTime: combineDateTime(formData.date, formData.startTime),
         endTime: combineDateTime(formData.date, formData.endTime),
         purpose: formData.purpose,
         expectedAttendees: formData.expectedAttendees ? parseInt(formData.expectedAttendees) : 0
       };
 
-      await axios.post('/api/bookings', payload, {
-        headers: { 'X-User-Id': 'user1' }
+      await api.post('/bookings', payload, {
+        headers: { 'X-User-Id': user?.id }
       });
       
       onSuccess();

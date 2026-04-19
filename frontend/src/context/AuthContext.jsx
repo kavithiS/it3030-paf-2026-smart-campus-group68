@@ -169,6 +169,13 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
         return;
       }
+      
+      // Temporary Dev Bypass
+      if (token === "dev-mock-admin") {
+         setUser({ id: "mock", email: "mock@admin", name: "Dev Admin", roles: ["ADMIN", "USER"], provider: "LOCAL" });
+         setLoading(false);
+         return;
+      }
 
       // Keep dashboard responsive when we already have user info.
       const shouldBlockUI = !user;
