@@ -19,12 +19,11 @@ public class Booking {
     @Id
     private String id;
 
-    private Resource resource; // embedded document
+    private Resource resource;
 
     private String userId;
 
     private LocalDateTime startTime;
-
     private LocalDateTime endTime;
 
     private String purpose;
@@ -33,4 +32,8 @@ public class Booking {
     private BookingStatus status;
 
     private String adminReason;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime reviewedAt;
+    private String reviewedBy;
 }

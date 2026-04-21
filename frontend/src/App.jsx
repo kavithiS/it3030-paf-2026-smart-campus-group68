@@ -3,17 +3,20 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import AuthPage from "./pages/AuthPage";
 import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import ResourceManagementPage from "./pages/ResourceManagementPage";
 import TechnicianDashboard from "./pages/TechnicianDashboard";
 import OAuth2RedirectHandler from "./pages/OAuth2RedirectHandler";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import LandingPage from "./pages/LandingPage";
+import Dashboard from "./pages/Dashboard";
 import {
   decodeJwtPayload,
   getLandingRoute,
   normalizeRoles,
   useAuth,
 } from "./context/AuthContext";
+import Navigation from "./components/Navigation";
 
 function App() {
   const { token, user, loading } = useAuth();
@@ -30,7 +33,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen text-slate-900 transition-colors duration-300 dark:text-slate-100">
+    <div className="min-h-screen text-slate-900 transition-colors duration-300 dark:text-slate-100 font-sans">
       <Routes>
         <Route path="/" element={token ? <Navigate to={defaultRoute} replace /> : <LandingPage />} />
         <Route path="/login" element={<AuthPage />} />
@@ -41,15 +44,25 @@ function App() {
         {/* Protected Routes */}
         <Route element={<ProtectedRoute allowedRoles={["USER"]} />}>
           <Route path="/user-dashboard" element={<UserDashboard />} />
+          {/* We insert our Booking Dashboard here for authenticated users */}
+          <Route path="/my-bookings" element={
+            <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-slate-900">
+              <Navigation />
+              <main className="flex-1 container mx-auto px-4 py-8 max-w-7xl">
+                <Dashboard />
+              </main>
+            </div>
+          } />
           <Route
             path="/dashboard"
-            element={<Navigate to="/user-dashboard" replace />}
+            element={<Navigate to="/my-bookings" replace />}
           />
         </Route>
 
         {/* Role Specific Protect Routes */}
         <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/resources" element={<ResourceManagementPage />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={["TECHNICIAN"]} />}>
