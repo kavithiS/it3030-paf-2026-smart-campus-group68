@@ -1,5 +1,5 @@
 import React from "react";
-import { BellRing, CalendarCheck2 } from "lucide-react";
+import { BellRing, CalendarCheck2, BookMarked } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import DashboardLayout from "../components/DashboardLayout";
 
@@ -13,6 +13,12 @@ const UserDashboard = () => {
       label: "Dashboard",
       icon: CalendarCheck2,
       route: "/user-dashboard",
+    },
+    {
+      key: "my-bookings",
+      label: "My Bookings",
+      icon: BookMarked,
+      route: "/my-bookings",
     },
   ];
 

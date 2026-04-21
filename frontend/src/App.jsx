@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import AuthPage from "./pages/AuthPage";
 import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import ResourceManagementPage from "./pages/ResourceManagementPage";
 import TechnicianDashboard from "./pages/TechnicianDashboard";
 import OAuth2RedirectHandler from "./pages/OAuth2RedirectHandler";
 import OAuthSuccess from "./pages/OAuthSuccess";
@@ -61,6 +62,7 @@ function App() {
         {/* Role Specific Protect Routes */}
         <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/resources" element={<ResourceManagementPage />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={["TECHNICIAN"]} />}>

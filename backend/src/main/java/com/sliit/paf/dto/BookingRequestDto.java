@@ -30,6 +30,6 @@ public class BookingRequestDto {
     @NotBlank(message = "Purpose is required")
     private String purpose;
 
-    @Min(value = 1, message = "Expected attendees must be at least 1")
+    @Min(value = 0, message = "Expected attendees cannot be negative")
     private Integer expectedAttendees;
 }

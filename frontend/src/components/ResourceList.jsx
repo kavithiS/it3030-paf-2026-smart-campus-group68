@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { Layers, MapPin, Users, CalendarCheck2 } from 'lucide-react';
 
 export default function ResourceList({ onSelectResource }) {
@@ -9,7 +9,7 @@ export default function ResourceList({ onSelectResource }) {
   useEffect(() => {
     const fetchResources = async () => {
       try {
-        const res = await axios.get('/api/resources');
+        const res = await api.get('/resources');
         setResources(res.data);
       } catch (err) {
         console.error("Error fetching resources, using fallback data", err);
