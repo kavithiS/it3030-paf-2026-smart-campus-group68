@@ -17,6 +17,21 @@ Smart Campus Operations Hub is a full-stack web application that streamlines cam
 - **Notification System**: Integrated alert system to keep users informed about service updates and approvals.
 - **Modern UI/UX**: Fully responsive, high-performance interface with dark mode support.
 
+## 📦 Modules
+
+### Module A: Facilities & Assets Catalogue
+This module serves as the central hub for managing and monitoring all bookable resources within the Smart Campus Operations Hub.
+- **Centralized Catalogue**: Searchable list of lecture halls, labs, meeting rooms, and equipment.
+- **Metadata Management**: Real-time tracking of resource capacity, location, and categorization.
+- **Availability Monitoring**: Instant visibility into resource status (e.g., ACTIVE, OUT_OF_SERVICE).
+- **Advanced Filtering**: Service-layer logic to filter resources by type, status, and physical capacity.
+
+### Module D: Notifications, Role Management & Auth
+The current module focused on securing the platform and enhancing user communication.
+- **Security**: JWT-based authentication and Google OAuth2 integration.
+- **Dashboard Logic**: Role-specific navigation and layouts.
+- **Communication**: Centralized notification system for status alerts.
+
 ## 🛠️ Tech Stack
 
 ### Frontend
