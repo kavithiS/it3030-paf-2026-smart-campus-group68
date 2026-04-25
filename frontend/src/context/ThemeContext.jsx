@@ -5,6 +5,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
+import { useLocation } from "react-router-dom";
 
 const ThemeContext = createContext();
 
@@ -22,6 +23,7 @@ const getInitialTheme = () => {
 
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(getInitialTheme);
+  const location = useLocation();
 
   useEffect(() => {
     const root = document.documentElement;
