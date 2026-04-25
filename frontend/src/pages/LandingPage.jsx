@@ -48,9 +48,8 @@ const FadeInSection = ({ children, delay = 0 }) => {
   return (
     <div
       ref={ref}
-      className={`transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-      }`}
+      className={`transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+        }`}
       style={{ transitionDelay: `${delay}ms` }}
     >
       {children}
@@ -153,11 +152,10 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
               {/* LEFT SIDE: Text and CTAs */}
               <div
-                className={`col-span-1 lg:col-span-6 order-2 lg:order-1 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                  isLoaded
+                className={`col-span-1 lg:col-span-6 order-2 lg:order-1 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] ${isLoaded
                     ? "opacity-100 translate-y-0"
                     : "opacity-0 translate-y-8"
-                }`}
+                  }`}
               >
                 <h1 className="text-[2.75rem] leading-[1.1] sm:text-5xl lg:text-6xl xl:text-[4rem] font-extrabold tracking-tight mb-5">
                   Simplifying{" "}
@@ -227,11 +225,10 @@ export default function LandingPage() {
 
               {/* RIGHT SIDE: Campus Illustration / Image Feature */}
               <div
-                className={`col-span-1 lg:col-span-6 order-1 lg:order-2 w-full transition-all duration-1000 delay-200 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                  isLoaded
+                className={`col-span-1 lg:col-span-6 order-1 lg:order-2 w-full transition-all duration-1000 delay-200 ease-[cubic-bezier(0.16,1,0.3,1)] ${isLoaded
                     ? "opacity-100 translate-x-0"
                     : "opacity-0 translate-x-12"
-                }`}
+                  }`}
               >
                 <div className="relative w-full max-w-lg mx-auto lg:max-w-none ml-auto">
                   {/* Floating Image Wrapper */}
