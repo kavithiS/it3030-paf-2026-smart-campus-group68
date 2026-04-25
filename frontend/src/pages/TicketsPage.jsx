@@ -81,36 +81,11 @@ const TicketsPage = () => {
     }
   };
 
-  const [highlightedTicketId, setHighlightedTicketId] = useState(null);
-
   useEffect(() => {
     loadTickets();
     loadTechnicians();
-    
-    // Handle ticket selection & highlight from URL
-    const params = new URLSearchParams(window.location.search);
-    const tId = params.get("ticketId");
-    if (tId) {
-      setHighlightedTicketId(tId);
-      // Clear the param
-      window.history.replaceState({}, "", window.location.pathname);
-      // Clear highlight after 5 seconds
-      setTimeout(() => setHighlightedTicketId(null), 5000);
-    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAdmin, isTechnician]);
-
-  useEffect(() => {
-    if (highlightedTicketId && tickets.length > 0) {
-      const ticket = tickets.find(t => t.id === highlightedTicketId);
-      if (ticket) {
-        setSelectedTicket(ticket);
-        const el = document.getElementById(`ticket-${highlightedTicketId}`);
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-      }
-    }
-  }, [highlightedTicketId, tickets]);
 
   const handleImages = async (event) => {
     const files = Array.from(event.target.files || []).slice(0, 3);
@@ -266,8 +241,8 @@ const TicketsPage = () => {
         </p>
       )}
 
-      <section className="grid gap-6 lg:grid-cols-[1.2fr_1fr] min-w-0">
-        <div className="animate-fade-up rounded-[2rem] border border-white/60 bg-white/40 p-6 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)] backdrop-blur-md dark:border-white/10 dark:bg-slate-900/40 min-w-0 overflow-hidden">
+      <section className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
+        <div className="animate-fade-up rounded-[2rem] border border-white/60 bg-white/40 p-6 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)] backdrop-blur-md dark:border-white/10 dark:bg-slate-900/40">
           <h2 className="text-xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
             {isAdmin
               ? "All Tickets"
@@ -279,20 +254,17 @@ const TicketsPage = () => {
             {tickets.map((ticket) => (
               <article
                 key={ticket.id}
-                id={`ticket-${ticket.id}`}
-                className={`rounded-2xl border border-white/60 bg-white/60 p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-slate-950/60 min-w-0 w-full overflow-hidden ${
-                    highlightedTicketId === ticket.id ? "animate-highlight" : ""
-                }`}
+                className="rounded-2xl border border-white/60 bg-white/60 p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-slate-950/60"
               >
-                <div className="flex items-start justify-between gap-3 min-w-0">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-lg font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-tight truncate">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-lg font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-tight">
                       {ticket.category}
                     </p>
-                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mt-0.5 truncate">#{ticket.id}</p>
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mt-0.5">#{ticket.id}</p>
                   </div>
                   <span
-                    className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold shadow-sm ${statusClass[ticket.status] || "bg-slate-200 text-slate-700"}`}
+                    className={`rounded-full px-3 py-1.5 text-xs font-bold shadow-sm ${statusClass[ticket.status] || "bg-slate-200 text-slate-700"}`}
                   >
                     {ticket.status}
                   </span>
@@ -305,7 +277,7 @@ const TicketsPage = () => {
                   Priority: {ticket.priority}
                 </p>
 
-                <div className="mt-4 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 pt-3 border-t border-slate-200/50 dark:border-white/5">
+                <div className="mt-4 flex flex-wrap items-center gap-3 pt-3 border-t border-slate-200/50 dark:border-white/5">
                   <button
                     type="button"
                     onClick={() => setSelectedTicket(ticket)}
@@ -316,7 +288,7 @@ const TicketsPage = () => {
 
                   {isAdmin && (
                     <select
-                      className="w-full sm:w-auto rounded-xl border border-slate-300/80 bg-white/50 px-3 py-2 text-xs font-bold text-slate-700 outline-none transition focus:border-indigo-400 dark:border-white/10 dark:bg-slate-800/50 dark:text-slate-200 dark:focus:border-indigo-500"
+                      className="rounded-xl border border-slate-300/80 bg-white/50 px-3 py-2 text-xs font-bold text-slate-700 outline-none transition focus:border-indigo-400 dark:border-white/10 dark:bg-slate-800/50 dark:text-slate-200 dark:focus:border-indigo-500"
                       value=""
                       onChange={(e) =>
                         assignTechnician(ticket.id, e.target.value)
@@ -333,7 +305,7 @@ const TicketsPage = () => {
 
                   {(isTechnician || isAdmin) && (
                     <select
-                      className="w-full sm:w-auto rounded-xl border border-slate-300/80 bg-white/50 px-3 py-2 text-xs font-bold text-slate-700 outline-none transition focus:border-indigo-400 dark:border-white/10 dark:bg-slate-800/50 dark:text-slate-200 dark:focus:border-indigo-500"
+                      className="rounded-xl border border-slate-300/80 bg-white/50 px-3 py-2 text-xs font-bold text-slate-700 outline-none transition focus:border-indigo-400 dark:border-white/10 dark:bg-slate-800/50 dark:text-slate-200 dark:focus:border-indigo-500"
                       value={ticket.status}
                       onChange={(e) =>
                         updateStatus(

@@ -51,11 +51,4 @@ public class NotificationController {
         notificationService.markAllAsRead(user.getId());
         return ResponseEntity.noContent().build();
     }
-
-    @DeleteMapping
-    public ResponseEntity<Void> clearAllNotifications() {
-        User user = currentUserService.getCurrentUser();
-        notificationService.clearAllNotifications(user.getId());
-        return ResponseEntity.noContent().build();
-    }
 }

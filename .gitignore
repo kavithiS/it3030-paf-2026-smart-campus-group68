@@ -42,3 +42,6 @@ coverage/
 *.tar
 *.gz
 *.rar
+
+# Local portable toolchain
+.tools/

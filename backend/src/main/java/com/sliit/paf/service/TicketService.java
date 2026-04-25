@@ -1,181 +1,205 @@
 package com.sliit.paf.service;
 
-import com.sliit.paf.dto.TicketCreateRequest;
-import com.sliit.paf.model.NotificationType;
+import com.sliit.paf.dto.AddCommentRequest;
+import com.sliit.paf.dto.AssignTicketRequest;
+import com.sliit.paf.dto.CreateTicketRequest;
+import com.sliit.paf.dto.RejectTicketRequest;
+import com.sliit.paf.dto.TicketResponse;
+import com.sliit.paf.model.Comment;
 import com.sliit.paf.model.Role;
 import com.sliit.paf.model.Ticket;
-import com.sliit.paf.model.TicketComment;
 import com.sliit.paf.model.TicketStatus;
 import com.sliit.paf.model.User;
+import com.sliit.paf.repository.CommentRepository;
 import com.sliit.paf.repository.TicketRepository;
 import com.sliit.paf.repository.UserRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TicketService {
-
-    private final TicketRepository ticketRepository;
-    private final UserRepository userRepository;
-    private final NotificationService notificationService;
-
-    public TicketService(TicketRepository ticketRepository,
-                         UserRepository userRepository,
-                         NotificationService notificationService) {
-        this.ticketRepository = ticketRepository;
-        this.userRepository = userRepository;
-        this.notificationService = notificationService;
-    }
-
-    public Ticket createTicket(TicketCreateRequest request, User user) {
-        List<String> images = request.getImages() == null ? List.of() : request.getImages();
-        if (images.size() > 3) {
-            throw new IllegalArgumentException("Maximum of 3 images are allowed.");
-        }
-
+    
+    @Autowired
+    private TicketRepository ticketRepository;
+    
+    @Autowired
+    private CommentRepository commentRepository;
+    
+    @Autowired
+    private UserRepository userRepository;
+    
+    /**
+     * Create a new ticket (USER role)
+     */
+    public Ticket createTicket(CreateTicketRequest request, User user) {
         Ticket ticket = new Ticket();
-        ticket.setCategory(request.getCategory().trim());
-        ticket.setDescription(request.getDescription().trim());
+        ticket.setTitle(request.getTitle());
+        ticket.setDescription(request.getDescription());
         ticket.setPriority(request.getPriority());
-        ticket.setImages(images);
-        ticket.setStatus(TicketStatus.OPEN);
-        ticket.setUserId(user.getId());
-        ticket.setUserName(user.getName());
-        ticket.setCreatedAt(LocalDateTime.now());
-        ticket.setUpdatedAt(LocalDateTime.now());
-
-        Ticket saved = ticketRepository.save(ticket);
-
-        notificationService.createForRole(
-            Role.ADMIN,
-            "New incident ticket",
-            user.getName() + " created a ticket in category " + ticket.getCategory() + ".",
-            NotificationType.TICKET_CREATED,
-            "TICKET",
-            ticket.getId(),
-            Set.of(user.getId()));
-
-        return saved;
+        ticket.setCreatedBy(user);
+        ticket.setImageUrls(request.getImageUrls()); // Max 3 images validation should be in controller
+        
+        return ticketRepository.save(ticket);
     }
-
-    public Page<Ticket> getMyTickets(String userId, Pageable pageable) {
-        return ticketRepository.findAllByUserIdOrderByCreatedAtDesc(userId, pageable);
+    
+    /**
+     * Get all tickets created by a user
+     */
+    public List<Ticket> getUserTickets(User user) {
+        return ticketRepository.findByCreatedBy(user);
     }
-
-    public Page<Ticket> getAssignedTickets(String technicianId, Pageable pageable) {
-        return ticketRepository.findAllByAssignedTechnicianIdOrderByCreatedAtDesc(technicianId, pageable);
+    
+    /**
+     * Get all tickets assigned to a technician
+     */
+    public List<Ticket> getAssignedTickets(User technician) {
+        return ticketRepository.findByAssignedTo(technician);
     }
-
-    public Page<Ticket> getAllTickets(Pageable pageable) {
-        return ticketRepository.findAllByOrderByCreatedAtDesc(pageable);
+    
+    /**
+     * Get all tickets (ADMIN only)
+     */
+    public List<Ticket> getAllTickets() {
+        return ticketRepository.findAll();
     }
-
-    public Ticket assignTechnician(String ticketId, String technicianId) {
-        Ticket ticket = ticketRepository.findById(ticketId)
-                .orElseThrow(() -> new IllegalArgumentException("Ticket not found."));
-
-        User technician = userRepository.findById(technicianId)
-                .orElseThrow(() -> new IllegalArgumentException("Technician not found."));
-
-        if (technician.getRoles() == null || !technician.getRoles().contains(Role.TECHNICIAN)) {
-            throw new IllegalArgumentException("Selected user is not a technician.");
+    
+    /**
+     * Get a specific ticket by ID
+     */
+    public Optional<Ticket> getTicketById(String ticketId) {
+        return ticketRepository.findById(ticketId);
+    }
+    
+    /**
+     * Assign ticket to technician (ADMIN only)
+     */
+    public Ticket assignTicket(String ticketId, AssignTicketRequest request) throws Exception {
+        Optional<Ticket> ticketOpt = ticketRepository.findById(ticketId);
+        if (!ticketOpt.isPresent()) {
+            throw new Exception("Ticket not found");
         }
-
-        ticket.setAssignedTechnicianId(technician.getId());
-        ticket.setAssignedTechnicianName(technician.getName());
-        ticket.setUpdatedAt(LocalDateTime.now());
-        Ticket saved = ticketRepository.save(ticket);
-
-        notificationService.createForUser(
-            technician.getId(),
-            Role.TECHNICIAN,
-            "Ticket assigned",
-            "You have been assigned ticket #" + ticket.getId() + ".",
-            NotificationType.TICKET_ASSIGNED,
-            "TICKET",
-            ticket.getId());
-
-        return saved;
-    }
-
-    public Ticket updateStatus(String ticketId, TicketStatus status, String resolutionNotes, User actor) {
-        Ticket ticket = ticketRepository.findById(ticketId)
-                .orElseThrow(() -> new IllegalArgumentException("Ticket not found."));
-
-        boolean assignedTechnician = ticket.getAssignedTechnicianId() != null && ticket.getAssignedTechnicianId().equals(actor.getId());
-        boolean admin = actor.getRoles() != null && actor.getRoles().contains(Role.ADMIN);
-
-        if (!assignedTechnician && !admin) {
-            throw new IllegalArgumentException("You cannot update this ticket.");
+        
+        Optional<User> technicianOpt = userRepository.findById(request.getTechnicianId());
+        if (!technicianOpt.isPresent()) {
+            throw new Exception("Technician not found");
         }
-
-        ticket.setStatus(status);
-        ticket.setResolutionNotes(resolutionNotes);
-        ticket.setUpdatedAt(LocalDateTime.now());
-        Ticket saved = ticketRepository.save(ticket);
-
-        notificationService.createForUser(
-                ticket.getUserId(),
-            Role.USER,
-                "Ticket update",
-                "Ticket #" + ticket.getId() + " status changed to " + status + ".",
-                NotificationType.TICKET_STATUS_UPDATED,
-                "TICKET",
-                ticket.getId());
-
-        notificationService.createForRole(
-            Role.ADMIN,
-            "Ticket status updated",
-            "Ticket #" + ticket.getId() + " was updated to " + status + " by " + actor.getName() + ".",
-            NotificationType.TICKET_STATUS_UPDATED,
-            "TICKET",
-            ticket.getId(),
-            Set.of(actor.getId()));
-
-        return saved;
-    }
-
-    public Ticket addComment(String ticketId, String message, User actor) {
-        Ticket ticket = ticketRepository.findById(ticketId)
-                .orElseThrow(() -> new IllegalArgumentException("Ticket not found."));
-
-        TicketComment comment = new TicketComment();
-        comment.setCommentId(UUID.randomUUID().toString());
-        comment.setAuthorId(actor.getId());
-        comment.setAuthorName(actor.getName());
-        comment.setMessage(message.trim());
-        comment.setCreatedAt(LocalDateTime.now());
-
-        ticket.getComments().add(comment);
-        ticket.setUpdatedAt(LocalDateTime.now());
-        Ticket saved = ticketRepository.save(ticket);
-
-        List<User> participants = new ArrayList<>();
-        participants.add(userRepository.findById(ticket.getUserId()).orElse(null));
-
-        if (ticket.getAssignedTechnicianId() != null && !ticket.getAssignedTechnicianId().isBlank()) {
-            participants.add(userRepository.findById(ticket.getAssignedTechnicianId()).orElse(null));
+        
+        User technician = technicianOpt.get();
+        if (!technician.getRoles().contains(Role.TECHNICIAN)) {
+            throw new Exception("User is not a technician");
         }
-
-        participants.addAll(userRepository.findAllByRolesContaining(Role.ADMIN));
-
-        notificationService.createForParticipants(
-                participants,
-                "New ticket comment",
-                actor.getName() + " commented on ticket #" + ticket.getId() + ".",
-                NotificationType.TICKET_COMMENT_ADDED,
-                "TICKET",
-                ticket.getId(),
-                new HashSet<>(Set.of(actor.getId())));
-
-        return saved;
+        
+        Ticket ticket = ticketOpt.get();
+        ticket.setAssignedTo(technician);
+        ticket.setStatus(TicketStatus.IN_PROGRESS); // Automatically move to IN_PROGRESS
+        
+        return ticketRepository.save(ticket);
+    }
+    
+    /**
+     * Update ticket status (TECHNICIAN can move to RESOLVED, ADMIN can move to CLOSED)
+     */
+    public Ticket updateTicketStatus(String ticketId, TicketStatus newStatus, String resolutionNotes) throws Exception {
+        Optional<Ticket> ticketOpt = ticketRepository.findById(ticketId);
+        if (!ticketOpt.isPresent()) {
+            throw new Exception("Ticket not found");
+        }
+        
+        Ticket ticket = ticketOpt.get();
+        
+        // Validate status transitions
+        if (newStatus == TicketStatus.RESOLVED && ticket.getStatus() != TicketStatus.IN_PROGRESS) {
+            throw new Exception("Can only mark IN_PROGRESS tickets as RESOLVED");
+        }
+        
+        if (newStatus == TicketStatus.CLOSED && ticket.getStatus() != TicketStatus.RESOLVED) {
+            throw new Exception("Can only mark RESOLVED tickets as CLOSED");
+        }
+        
+        ticket.setStatus(newStatus);
+        if (resolutionNotes != null && !resolutionNotes.isEmpty()) {
+            ticket.setResolutionNotes(resolutionNotes);
+        }
+        
+        return ticketRepository.save(ticket);
+    }
+    
+    /**
+     * Reject ticket (ADMIN only)
+     */
+    public Ticket rejectTicket(String ticketId, RejectTicketRequest request) throws Exception {
+        Optional<Ticket> ticketOpt = ticketRepository.findById(ticketId);
+        if (!ticketOpt.isPresent()) {
+            throw new Exception("Ticket not found");
+        }
+        
+        Ticket ticket = ticketOpt.get();
+        ticket.setStatus(TicketStatus.REJECTED);
+        ticket.setRejectionReason(request.getReason());
+        
+        return ticketRepository.save(ticket);
+    }
+    
+    /**
+     * Add comment to ticket
+     */
+    public Comment addComment(String ticketId, AddCommentRequest request, User user) throws Exception {
+        Optional<Ticket> ticketOpt = ticketRepository.findById(ticketId);
+        if (!ticketOpt.isPresent()) {
+            throw new Exception("Ticket not found");
+        }
+        
+        Ticket ticket = ticketOpt.get();
+        Comment comment = new Comment(ticket, user, request.getContent());
+        Comment savedComment = commentRepository.save(comment);
+        
+        // Add comment to ticket's comments list
+        ticket.getComments().add(savedComment);
+        ticketRepository.save(ticket);
+        
+        return savedComment;
+    }
+    
+    /**
+     * Get all comments for a ticket
+     */
+    public List<Comment> getTicketComments(String ticketId) throws Exception {
+        Optional<Ticket> ticketOpt = ticketRepository.findById(ticketId);
+        if (!ticketOpt.isPresent()) {
+            throw new Exception("Ticket not found");
+        }
+        
+        return commentRepository.findByTicket(ticketOpt.get());
+    }
+    
+    /**
+     * Convert Ticket to TicketResponse DTO
+     */
+    public TicketResponse convertToResponse(Ticket ticket) {
+        TicketResponse response = new TicketResponse();
+        response.setId(ticket.getId());
+        response.setTitle(ticket.getTitle());
+        response.setDescription(ticket.getDescription());
+        response.setPriority(ticket.getPriority());
+        response.setStatus(ticket.getStatus());
+        response.setCreatedByName(ticket.getCreatedBy().getName());
+        response.setCreatedByEmail(ticket.getCreatedBy().getEmail());
+        
+        if (ticket.getAssignedTo() != null) {
+            response.setAssignedToName(ticket.getAssignedTo().getName());
+            response.setAssignedToEmail(ticket.getAssignedTo().getEmail());
+        }
+        
+        response.setRejectionReason(ticket.getRejectionReason());
+        response.setResolutionNotes(ticket.getResolutionNotes());
+        response.setImageUrls(ticket.getImageUrls());
+        response.setCommentCount(ticket.getComments().size());
+        response.setCreatedAt(ticket.getCreatedAt());
+        response.setUpdatedAt(ticket.getUpdatedAt());
+        
+        return response;
     }
 }

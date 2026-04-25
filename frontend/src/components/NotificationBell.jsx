@@ -79,17 +79,14 @@ const NotificationBell = () => {
   };
 
   const resolveDestination = (item) => {
-    const query = item.referenceId ? `?id=${item.referenceId}` : "";
-    const ticketQuery = item.referenceId ? `?ticketId=${item.referenceId}` : "";
-
     if (item.referenceType === "BOOKING") {
       return roles.includes("TECHNICIAN")
         ? getLandingRoute(roles)
-        : `/bookings${query}`;
+        : "/bookings";
     }
 
-    if (item.referenceType === "TICKET" || item.type?.startsWith("TICKET")) {
-      return `/tickets${ticketQuery}`;
+    if (item.referenceType === "TICKET") {
+      return "/tickets";
     }
 
     return "/notifications";

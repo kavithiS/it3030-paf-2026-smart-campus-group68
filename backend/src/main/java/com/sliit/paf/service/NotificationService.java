@@ -137,10 +137,6 @@ public class NotificationService {
         });
     }
 
-    public void clearAllNotifications(String userId) {
-        notificationRepository.deleteAllByUserId(userId);
-    }
-
     private Role getPrimaryRole(User user) {
         if (user.getRoles() == null || user.getRoles().isEmpty()) {
             return Role.USER;
