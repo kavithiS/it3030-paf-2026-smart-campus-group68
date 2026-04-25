@@ -36,3 +36,8 @@ npm run dev
 npm run build
 npm run preview
 ```
+
+## Documentation Maintenance
+- Update this file when adding or removing major frontend modules.
+- Keep route and access details aligned with App and ProtectedRoute changes.
+- Reflect API client behavior changes in API_INTEGRATION.md.
