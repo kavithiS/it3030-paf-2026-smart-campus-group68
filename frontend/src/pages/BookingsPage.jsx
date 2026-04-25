@@ -72,11 +72,32 @@ const BookingsPage = () => {
     }
   };
 
+  const [highlightedBookingId, setHighlightedBookingId] = useState(null);
+
   useEffect(() => {
     loadResources();
     loadBookings();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
+    // Handle highlight from URL
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    if (id) {
+      setHighlightedBookingId(id);
+      // Remove param from URL
+      window.history.replaceState({}, "", window.location.pathname);
+      // Clear highlight after 5 seconds
+      setTimeout(() => setHighlightedBookingId(null), 5000);
+    }
   }, [canViewAll]);
+
+  useEffect(() => {
+    if (highlightedBookingId && bookings.length > 0) {
+      const el = document.getElementById(`booking-${highlightedBookingId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  }, [highlightedBookingId, bookings]);
 
   const flash = (msg) => {
     setSuccess(msg);
@@ -398,7 +419,10 @@ const BookingsPage = () => {
                 {bookings.map((booking) => (
                   <tr
                     key={booking.id}
-                    className="transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30"
+                    id={`booking-${booking.id}`}
+                    className={`transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30 ${
+                      highlightedBookingId === booking.id ? "animate-highlight" : ""
+                    }`}
                   >
                     <td className="px-5 py-4 font-semibold text-slate-800 dark:text-slate-200">
                       {booking.resourceName}

@@ -1,9 +1,11 @@
 import {
   Bell,
+  CalendarDays,
   ClipboardList,
+  LayoutGrid,
   ShieldCheck,
+  Wrench,
 } from "lucide-react";
-
 
 const accents = {
   USER: {
@@ -42,6 +44,13 @@ export const getSidebarItems = (role) => {
 
   const common = [
     {
+      key: "resources",
+      label: "Facilities",
+      icon: LayoutGrid,
+      route: "/resources",
+    },
+    { key: "tickets", label: "Tickets", icon: Wrench, route: "/tickets" },
+    {
       key: "notifications",
       label: "Notifications",
       icon: Bell,
@@ -56,6 +65,12 @@ export const getSidebarItems = (role) => {
         label: "Dashboard",
         icon: ShieldCheck,
         route: dashboardRoute,
+      },
+      {
+        key: "bookings",
+        label: "Bookings",
+        icon: CalendarDays,
+        route: "/bookings",
       },
       ...common,
     ];
@@ -80,7 +95,12 @@ export const getSidebarItems = (role) => {
       icon: ClipboardList,
       route: dashboardRoute,
     },
+    {
+      key: "bookings",
+      label: "Bookings",
+      icon: CalendarDays,
+      route: "/bookings",
+    },
     ...common,
   ];
 };
-
