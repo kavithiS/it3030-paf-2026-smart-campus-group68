@@ -38,7 +38,7 @@ const RoleDashboardLayout = ({
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100">
+    <div className="min-h-screen bg-transparent text-slate-900 transition-colors dark:text-slate-100">
       <Sidebar
         items={items}
         activeKey={activeMenuKey}
@@ -54,16 +54,17 @@ const RoleDashboardLayout = ({
         accentTextClassName={accentTextClassName}
         onLogout={logout}
       />
-
-      <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
+      <main
+        className={`flex min-w-0 flex-1 flex-col transition-all duration-300 ${
+          isSidebarCollapsed ? "lg:ml-20" : "lg:ml-64"
+        }`}
+      >
         <Navbar
           title={title}
           onMenuClick={() => setIsMobileSidebarOpen(true)}
         />
-        <div className="flex-1 overflow-y-auto">
-          <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 sm:px-6">
-            {children}
-          </div>
+        <div className="w-full space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+          {children}
         </div>
       </main>
     </div>
