@@ -38,7 +38,7 @@ const RoleDashboardLayout = ({
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100">
+    <div className="flex min-h-[100dvh] bg-transparent text-slate-900 transition-colors dark:text-slate-100">
       <Sidebar
         items={items}
         activeKey={activeMenuKey}

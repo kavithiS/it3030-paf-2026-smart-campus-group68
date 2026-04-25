@@ -4,9 +4,12 @@ import AuthPage from "./pages/AuthPage";
 import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import TechnicianDashboard from "./pages/TechnicianDashboard";
-import TicketDetails from "./pages/TicketDetails";
 import OAuth2RedirectHandler from "./pages/OAuth2RedirectHandler";
 import OAuthSuccess from "./pages/OAuthSuccess";
+import ResourcesPage from "./pages/ResourcesPage";
+import BookingsPage from "./pages/BookingsPage";
+import TicketsPage from "./pages/TicketsPage";
+import NotificationsPage from "./pages/NotificationsPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import LandingPage from "./pages/LandingPage";
 import {
@@ -33,7 +36,12 @@ function App() {
   return (
     <div className="min-h-screen text-slate-900 transition-colors duration-300 dark:text-slate-100">
       <Routes>
-        <Route path="/" element={token ? <Navigate to={defaultRoute} replace /> : <LandingPage />} />
+        <Route
+          path="/"
+          element={
+            token ? <Navigate to={defaultRoute} replace /> : <LandingPage />
+          }
+        />
         <Route path="/login" element={<AuthPage />} />
         <Route path="/register" element={<AuthPage />} />
         <Route path="/oauth-success" element={<OAuthSuccess />} />
@@ -48,9 +56,18 @@ function App() {
           />
         </Route>
 
-        {/* Ticket Routes (accessible by all authenticated users) */}
-        <Route element={<ProtectedRoute allowedRoles={["USER", "ADMIN", "TECHNICIAN"]} />}>
-          <Route path="/ticket/:id" element={<TicketDetails />} />
+        <Route
+          element={
+            <ProtectedRoute allowedRoles={["USER", "ADMIN", "TECHNICIAN"]} />
+          }
+        >
+          <Route path="/resources" element={<ResourcesPage />} />
+          <Route path="/tickets" element={<TicketsPage />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
+        </Route>
+
+        <Route element={<ProtectedRoute allowedRoles={["USER", "ADMIN"]} />}>
+          <Route path="/bookings" element={<BookingsPage />} />
         </Route>
 
         {/* Role Specific Protect Routes */}
