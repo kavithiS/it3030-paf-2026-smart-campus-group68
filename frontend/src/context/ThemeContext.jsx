@@ -29,18 +29,9 @@ export const ThemeProvider = ({ children }) => {
     const root = document.documentElement;
 
     root.classList.remove("light", "dark");
-    
-    // Force dark mode on landing, auth, and other non-dashboard pages
-    const isDashboard = location.pathname.includes("dashboard");
-    
-    if (isDashboard) {
-      root.classList.add(theme);
-    } else {
-      root.classList.add("dark");
-    }
-    
+    root.classList.add(theme);
     localStorage.setItem("theme", theme);
-  }, [theme, location.pathname]);
+  }, [theme]);
 
   const toggleTheme = () => {
     setTheme((current) => (current === "dark" ? "light" : "dark"));
