@@ -1,13 +1,40 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Menu, Moon, Sun } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import NotificationBell from "./NotificationBell";
 
 const Navbar = ({ onMenuClick, title = "Dashboard" }) => {
   const { isDarkMode, toggleTheme } = useTheme();
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      // Show if scrolling up, hide if scrolling down
+      // But always show if at the very top (less than 10px)
+      if (currentScrollY < 10) {
+        setIsVisible(true);
+      } else if (currentScrollY > lastScrollY) {
+        setIsVisible(false);
+      } else {
+        setIsVisible(true);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200/60 bg-white/70 px-4 backdrop-blur-xl transition-colors duration-300 dark:border-white/10 dark:bg-slate-950/60 sm:px-6 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
+    <header
+      className={`sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200/60 bg-white/80 px-4 backdrop-blur-xl transition-all duration-500 ease-in-out dark:border-white/10 dark:bg-slate-950/80 sm:px-6 shadow-[0_4px_30px_rgba(0,0,0,0.02)] ${
+        isVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
+      }`}
+    >
       <div className="flex items-center gap-3">
         <button
           type="button"

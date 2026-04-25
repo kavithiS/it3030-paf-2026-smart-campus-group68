@@ -1,7 +1,6 @@
 package com.sliit.paf.dto;
 
 import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -25,9 +24,6 @@ public class BookingRequest {
 
     @NotBlank
     private String purpose;
-
-    @Min(1)
-    private Integer attendees;
 
     public String getResourceId() {
         return resourceId;
@@ -67,13 +63,5 @@ public class BookingRequest {
 
     public void setPurpose(String purpose) {
         this.purpose = purpose;
-    }
-
-    public Integer getAttendees() {
-        return attendees;
-    }
-
-    public void setAttendees(Integer attendees) {
-        this.attendees = attendees;
     }
 }
