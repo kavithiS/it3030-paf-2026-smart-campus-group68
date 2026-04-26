@@ -70,11 +70,17 @@ public class BookingService {
         return saved;
     }
 
-    public Page<Booking> getMyBookings(String userId, Pageable pageable) {
+    public Page<Booking> getMyBookings(String userId, BookingStatus status, Pageable pageable) {
+        if (status != null) {
+            return bookingRepository.findAllByUserIdAndStatusOrderByCreatedAtDesc(userId, status, pageable);
+        }
         return bookingRepository.findAllByUserIdOrderByCreatedAtDesc(userId, pageable);
     }
 
-    public Page<Booking> getAllBookings(Pageable pageable) {
+    public Page<Booking> getAllBookings(BookingStatus status, Pageable pageable) {
+        if (status != null) {
+            return bookingRepository.findAllByStatusOrderByCreatedAtDesc(status, pageable);
+        }
         return bookingRepository.findAllByOrderByCreatedAtDesc(pageable);
     }
 

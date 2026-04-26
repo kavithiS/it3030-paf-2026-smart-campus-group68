@@ -17,5 +17,9 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
 
     Page<Booking> findAllByUserIdOrderByCreatedAtDesc(String userId, Pageable pageable);
 
+    Page<Booking> findAllByUserIdAndStatusOrderByCreatedAtDesc(String userId, BookingStatus status, Pageable pageable);
+
     Page<Booking> findAllByOrderByCreatedAtDesc(Pageable pageable);
+
+    Page<Booking> findAllByStatusOrderByCreatedAtDesc(BookingStatus status, Pageable pageable);
 }

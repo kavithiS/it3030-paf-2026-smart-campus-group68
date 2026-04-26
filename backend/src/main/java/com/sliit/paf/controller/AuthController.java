@@ -66,7 +66,8 @@ public class AuthController {
     public ResponseEntity<Object> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         try {
             String verificationCode = authService.generateForgotPasswordCode(request.getEmail());
-            return ResponseEntity.ok(new ForgotPasswordResponse("Verification code generated successfully.", verificationCode));
+            return ResponseEntity
+                    .ok(new ForgotPasswordResponse("Verification code generated successfully.", verificationCode));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
@@ -93,7 +94,7 @@ public class AuthController {
 
         return ResponseEntity.badRequest().body(new MessageResponse(message));
     }
-    
+
     // Test endpoint to verify connectivity
     @GetMapping("/test")
     public ResponseEntity<MessageResponse> testAuth() {

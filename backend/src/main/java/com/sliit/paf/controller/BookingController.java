@@ -3,6 +3,7 @@ package com.sliit.paf.controller;
 import com.sliit.paf.dto.BookingDecisionRequest;
 import com.sliit.paf.dto.BookingRequest;
 import com.sliit.paf.model.Booking;
+import com.sliit.paf.model.BookingStatus;
 import com.sliit.paf.model.User;
 import com.sliit.paf.service.BookingService;
 import com.sliit.paf.service.CurrentUserService;
@@ -38,18 +39,20 @@ public class BookingController {
     @GetMapping("/mine")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Page<Booking>> getMyBookings(@RequestParam(defaultValue = "0") int page,
-                                                       @RequestParam(defaultValue = "10") int size) {
+                                                       @RequestParam(defaultValue = "10") int size,
+                                                       @RequestParam(required = false) BookingStatus status) {
         User user = currentUserService.getCurrentUser();
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return ResponseEntity.ok(bookingService.getMyBookings(user.getId(), pageable));
+        return ResponseEntity.ok(bookingService.getMyBookings(user.getId(), status, pageable));
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECHNICIAN')")
     public ResponseEntity<Page<Booking>> getAllBookings(@RequestParam(defaultValue = "0") int page,
-                                                        @RequestParam(defaultValue = "20") int size) {
+                                                        @RequestParam(defaultValue = "20") int size,
+                                                        @RequestParam(required = false) BookingStatus status) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return ResponseEntity.ok(bookingService.getAllBookings(pageable));
+        return ResponseEntity.ok(bookingService.getAllBookings(status, pageable));
     }
 
     @PatchMapping("/{id}/approve")
