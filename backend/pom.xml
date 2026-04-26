@@ -9,10 +9,10 @@
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
   <groupId>com.sliit.paf</groupId>
-  <artifactId>smart-campus</artifactId>
+  <artifactId>unireservehub</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>smart-campus-auth</name>
-  <description>Smart Campus Operations Hub - Authentication &amp; Role Management</description>
+  <name>UniReserveHub</name>
+  <description>UniReserveHub - Smart Campus Resource &amp; Reservation Management System</description>
   
   <properties>
     <java.version>17</java.version>
